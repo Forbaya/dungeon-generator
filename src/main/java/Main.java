@@ -1,10 +1,14 @@
+import javafx.application.Application;
+import javafx.stage.Stage;
 import ui.UserInterface;
 
-import javax.swing.SwingUtilities;
+public class Main extends Application {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        new UserInterface(primaryStage);
+    }
 
-public class Main {
     public static void main(String[] args) {
-        UserInterface ui = new UserInterface();
-        SwingUtilities.invokeLater(ui);
+        launch(args);
     }
 }
