@@ -10,6 +10,9 @@ import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 import utils.Constants;
 
+/**
+ * The graphical user interface to show the dungeon.
+ */
 public class UserInterface {
     private Dungeon dungeon;
 
@@ -19,7 +22,7 @@ public class UserInterface {
         Circle circle = createCircle();
         group.getChildren().add(circle);
 
-        dungeon = new Dungeon(group, 10);
+        dungeon = new Dungeon(group, 50);
         dungeon.generateDungeon();
 
         Scene scene = new Scene(group, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, Color.BLACK);
@@ -28,10 +31,13 @@ public class UserInterface {
         primaryStage.show();
     }
 
+    /**
+     * Creates the circle used for generating cells.
+     *
+     * @return
+     */
     public Circle createCircle() {
-        int centerX = Constants.SCREEN_WIDTH / 2 - Constants.SCREEN_WIDTH % Constants.TILE_SIZE;
-        int centerY = Constants.SCREEN_HEIGHT / 2 - Constants.SCREEN_HEIGHT % Constants.TILE_SIZE;
-        Circle circle = new Circle(centerX, centerY, Constants.CIRCLE_RADIUS);
+        Circle circle = new Circle(Constants.CIRCLE_CENTER_X, Constants.CIRCLE_CENTER_Y, Constants.CIRCLE_RADIUS);
         circle.setStroke(Color.web("pink", 0.2));
         circle.setStrokeWidth(1);
         circle.setFill(Color.TRANSPARENT);
@@ -40,6 +46,7 @@ public class UserInterface {
 
     /**
      * Creates the background grid.
+     *
      * @return Group that contains the grid lines
      */
     public Group createGrid() {

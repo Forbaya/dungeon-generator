@@ -2,6 +2,7 @@ package utils;
 
 /**
  * A tuple.
+ *
  * @param <T1> Type of first element
  * @param <T2> Type of second element
  */
