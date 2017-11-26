@@ -13,9 +13,10 @@ import static utils.Utils.random;
 /**
  * Cells that the dungeon is made of.
  */
-public class Cell {
+public class Cell implements Comparable<Cell> {
     private Rectangle rectangle;
     private Tuple<Integer, Integer> cellCenter;
+
     private double distanceFromCenterOfCircle;
     private ArrayList<Cell> collidingCells;
 
@@ -103,6 +104,14 @@ public class Cell {
     }
 
     /**
+     * Gets the distance from center of the circle.
+     * @return
+     */
+    public double getDistanceFromCenterOfCircle() {
+        return distanceFromCenterOfCircle;
+    }
+
+    /**
      * Gets the ArrayList of colliding cells.
      *
      * @return the ArrayList of colliding cells
@@ -127,5 +136,17 @@ public class Cell {
      */
     public boolean hasCollision() {
         return collidingCells.size() > 0;
+    }
+
+
+    @Override
+    public int compareTo(Cell otherCell) {
+        if (this.distanceFromCenterOfCircle < otherCell.getDistanceFromCenterOfCircle()) {
+            return 1;
+        }
+        if (this.distanceFromCenterOfCircle == otherCell.getDistanceFromCenterOfCircle()) {
+            return 0;
+        }
+        return -1;
     }
 }

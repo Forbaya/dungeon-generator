@@ -23,6 +23,7 @@ public class Dungeon {
      */
     public void generateDungeon() {
         generateCells();
+        separateCells();
     }
 
     /**
@@ -44,6 +45,18 @@ public class Dungeon {
             cells.add(newCell);
             group.getChildren().add(newCell.getRectangle());
         }
+    }
+
+    /**
+     * When cells are generated, some of them are likely to be on top of each other. This method separates them
+     * from each other.
+     */
+    private void separateCells() {
+        Cell closestCollidingCell = getClosestCollidingCell();
+    }
+
+    private Cell getClosestCollidingCell() {
+        return null;
     }
 
     public ArrayList<Cell> getCells() {
