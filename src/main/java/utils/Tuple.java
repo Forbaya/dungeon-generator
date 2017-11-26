@@ -7,8 +7,8 @@ package utils;
  * @param <T2> Type of second element
  */
 public class Tuple<T1, T2> {
-    public final T1 x;
-    public final T2 y;
+    public T1 x;
+    public T2 y;
 
     public Tuple(T1 x, T2 y) {
         this.x = x;

@@ -22,8 +22,12 @@ public class UserInterface {
         Circle circle = createCircle();
         group.getChildren().add(circle);
 
-        dungeon = new Dungeon(group, 50);
-        dungeon.generateDungeon();
+        dungeon = new Dungeon(group, 2);
+        try {
+            dungeon.generateDungeon();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Scene scene = new Scene(group, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, Color.BLACK);
         primaryStage.setScene(scene);

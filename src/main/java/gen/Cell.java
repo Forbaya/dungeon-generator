@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import utils.ArrayList;
+import utils.Axis;
 import utils.Constants;
 import utils.Tuple;
 import utils.Utils;
@@ -14,13 +15,15 @@ import static utils.Utils.random;
  * Cells that the dungeon is made of.
  */
 public class Cell implements Comparable<Cell> {
+    int id;
     private Rectangle rectangle;
     private Tuple<Integer, Integer> cellCenter;
 
     private double distanceFromCenterOfCircle;
     private ArrayList<Cell> collidingCells;
 
-    public Cell() {
+    public Cell(int id) {
+        this.id = id;
         collidingCells = new ArrayList<>();
         createRectangle();
         createCellCenterAndDistanceFromCircle((int)rectangle.getX(), (int)rectangle.getY(), (int)rectangle.getWidth(), (int)rectangle.getHeight());
@@ -95,6 +98,21 @@ public class Cell implements Comparable<Cell> {
     }
 
     /**
+     * Gets the closest cell to the circle that collides with this cell.
+     *
+     * @return the closest cell
+     */
+    public Cell getClosestCollidingCell() {
+        Cell closest = collidingCells.get(0);
+        for (int i = 1; i < collidingCells.size(); i++) {
+            if (collidingCells.get(i).getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle()) {
+                closest = collidingCells.get(i);
+            }
+        }
+        return closest;
+    }
+
+    /**
      * Gets the rectangle of the cell.
      *
      * @return the rectangle
@@ -103,12 +121,25 @@ public class Cell implements Comparable<Cell> {
         return rectangle;
     }
 
+    public int getId() {
+        return id;
+    }
+
     /**
      * Gets the distance from center of the circle.
      * @return
      */
     public double getDistanceFromCenterOfCircle() {
         return distanceFromCenterOfCircle;
+    }
+
+    /**
+     * Gets the cell's center point.
+     *
+     * @return the center point
+     */
+    public Tuple<Integer, Integer> getCellCenter() {
+        return cellCenter;
     }
 
     /**
@@ -121,12 +152,36 @@ public class Cell implements Comparable<Cell> {
     }
 
     /**
+     * Moves the cell to a new position.
+     *
+     * @param axis   the axis to move in
+     * @param length the length to be moved
+     */
+    public void move(Axis axis, int length) {
+        if (axis == Axis.X_AXIS) {
+            rectangle.setX(rectangle.getX() + length);
+            cellCenter.x = (int)rectangle.getX() + (int)rectangle.getWidth() / 2;
+        } else {
+            rectangle.setY(rectangle.getY() + length);
+            cellCenter.y = (int)rectangle.getY() + (int)rectangle.getHeight() / 2;
+        }
+    }
+
+    /**
      * Adds a colliding cell to the list of colliding cells.
      *
      * @param cell a colliding cell
      */
     public void addCollidingCell(Cell cell) {
         collidingCells.add(cell);
+    }
+
+    public void removeCollidingCell(int id) {
+        for (int i = 0; i < collidingCells.size(); i++) {
+            if (collidingCells.get(i).getId() == id) {
+                collidingCells.remove(i);
+            }
+        }
     }
 
     /**
@@ -142,11 +197,11 @@ public class Cell implements Comparable<Cell> {
     @Override
     public int compareTo(Cell otherCell) {
         if (this.distanceFromCenterOfCircle < otherCell.getDistanceFromCenterOfCircle()) {
-            return 1;
+            return -1;
         }
         if (this.distanceFromCenterOfCircle == otherCell.getDistanceFromCenterOfCircle()) {
             return 0;
         }
-        return -1;
+        return 1;
     }
 }

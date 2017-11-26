@@ -31,6 +31,30 @@ public class Heap {
     }
 
     /**
+     * Gets the current size of the heap.
+     *
+     * @return the current size
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * Checks whether the heap contains a cell.
+     *
+     * @param cell the cell
+     * @return true if heap contains the cell, otherwise false
+     */
+    public boolean contains(Cell cell) {
+        for (int i = 1; i < size; i++) {
+            if (heap[i].equals(cell)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Inserts a new cell to the heap and heapifies.
      *
      * @param cell the cell to be inserted

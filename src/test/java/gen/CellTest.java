@@ -12,7 +12,7 @@ public class CellTest extends TestHelper {
 
     @Before
     public void setUp() throws Exception {
-        cell  = new Cell();
+        cell  = new Cell(0);
     }
 
     @Test
