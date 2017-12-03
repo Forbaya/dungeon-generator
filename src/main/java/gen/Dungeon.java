@@ -181,6 +181,11 @@ public class Dungeon {
         }
     }
 
+    /**
+     * Gets the cell centers points as Vertex objects.
+     *
+     * @return a List of cell center points
+     */
     private ArrayList<Vertex> getCellCenters() {
         ArrayList<Vertex> cellCenters = new ArrayList<>();
 
@@ -195,6 +200,12 @@ public class Dungeon {
         return cellCenters;
     }
 
+    /**
+     * Creates the super triangle that contains all the other triangles.
+     *
+     * @param vertices the vertices
+     * @return the super triangle
+     */
     private Triangle createSuperTriangle(ArrayList<Vertex> vertices) {
         int minX = vertices.get(0).getX();
         int maxX = minX;
@@ -227,6 +238,12 @@ public class Dungeon {
         return new Triangle(v1, v2, v3);
     }
 
+    /**
+     * Finds the triangles that aren't valid in delaunay triangulation.
+     *
+     * @param vertex a point
+     * @return a list of bad triangles
+     */
     public ArrayList<Triangle> findBadTriangles(Vertex vertex) {
         ArrayList<Triangle> badTriangles = new ArrayList<>();
 

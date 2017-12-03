@@ -4,6 +4,7 @@ package utils;
  * Constants for all classes to use.
  */
 public class Constants {
+    public static int CELL_COUNT = 400;
     public static int TILE_SIZE = 16;
     public static int SCREEN_WIDTH = 1200;
     public static int SCREEN_HEIGHT = SCREEN_WIDTH / 16 * 9;

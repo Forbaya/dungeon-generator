@@ -1,5 +1,6 @@
 package ui;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gen.Dungeon;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -22,12 +23,15 @@ public class UserInterface {
         Circle circle = createCircle();
         group.getChildren().add(circle);
 
-        dungeon = new Dungeon(group, 35);
+        long beginTime = System.currentTimeMillis();
+        dungeon = new Dungeon(group, Constants.CELL_COUNT);
         try {
             dungeon.generateDungeon();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Dungeon of " + Constants.CELL_COUNT + " cells was generated in: " + (endTime - beginTime) + " ms.");
 
         Scene scene = new Scene(group, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, Color.BLACK);
         primaryStage.setScene(scene);
