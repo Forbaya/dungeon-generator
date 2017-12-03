@@ -5,6 +5,8 @@ import utils.ArrayList;
 import utils.Axis;
 import utils.Utils;
 
+import java.util.Random;
+
 /**
  * The dungeon itself.
  */
@@ -12,11 +14,13 @@ public class Dungeon {
     private ArrayList<Cell> cells;
     private Group group;
     private int cellCount;
+    private Random random;
 
     public Dungeon(Group group, int cellCount) {
         this.group = group;
         this.cellCount = cellCount;
         cells = new ArrayList<>();
+        random = new Random();
     }
 
     /**
@@ -47,7 +51,6 @@ public class Dungeon {
             cells.add(newCell);
             group.getChildren().add(newCell.getRectangle());
         }
-        boolean kappa123 = true;
     }
 
     /**
@@ -75,10 +78,14 @@ public class Dungeon {
             Cell closestCollidingCell = getClosestCollidingCell();
             Cell secondClosestCollidingCell = closestCollidingCell.getClosestCollidingCell();
             separateTwoCells(closestCollidingCell, secondClosestCollidingCell);
-
         }
     }
 
+    /**
+     * Checks if at least two cells are colliding.
+     *
+     * @return true if some cells are colliding, otherwise false
+     */
     private boolean cellsHaveCollisions() {
         for (int i = 0; i < cells.size(); i++) {
             if (cells.get(i).hasCollision()) {
@@ -95,27 +102,43 @@ public class Dungeon {
      * @param secondCell the second colliding cell
      */
     private void separateTwoCells(Cell firstCell, Cell secondCell) {
-        System.out.println("f: " + firstCell.getId() + ", s: " + secondCell.getId());
         int xDifferenceBetweenCenters = Math.abs(firstCell.getCellCenter().x - secondCell.getCellCenter().x);
         int yDifferenceBetweenCenters = Math.abs(firstCell.getCellCenter().y - secondCell.getCellCenter().y);
         int xCollisionDistance = Math.abs(xDifferenceBetweenCenters - (int)firstCell.getRectangle().getWidth() / 2 - (int)secondCell.getRectangle().getWidth() / 2);
         int yCollisionDistance = Math.abs(yDifferenceBetweenCenters - (int)firstCell.getRectangle().getHeight() / 2 - (int)secondCell.getRectangle().getHeight() / 2);
 
-        Axis axis = xCollisionDistance < yCollisionDistance ? Axis.X_AXIS : Axis.Y_AXIS;
+        Axis axis = getAxis(xCollisionDistance, yCollisionDistance);
         int direction = secondCell.getCellCenter().x >= 0 ? 1 : -1;
         int amountToMove = axis == Axis.X_AXIS ? xCollisionDistance : yCollisionDistance;
         secondCell.move(axis, amountToMove * direction);
         updateCellCollisions(secondCell);
     }
 
+    /**
+     * Gets the axis that a cell is moved in. The cell is moved in the axis that has a bigger collision distance.
+     * If the x-axis collision distance is same as the y-axis collision distance, the axis is random.
+     *
+     * @param xCollisionDistance the x-axis collision distance
+     * @param yCollisionDistance the y-axis collision distance
+     * @return the axis
+     */
+    public Axis getAxis(int xCollisionDistance, int yCollisionDistance) {
+        if (xCollisionDistance == yCollisionDistance) {
+            return random.nextFloat() > 0.5 ? Axis.X_AXIS : Axis.Y_AXIS;
+        }
+        return xCollisionDistance < yCollisionDistance ? Axis.X_AXIS : Axis.Y_AXIS;
+    }
+
+    /**
+     * Updates the cell collision lists.
+     *
+     * @param movedCell the cell that was just moved
+     */
     private void updateCellCollisions(Cell movedCell) {
         for (int i = 0; i < cells.size(); i++) {
             Cell firstCell = cells.get(i);
             for (int j = 0; j < firstCell.getCollidingCells().size(); j++) {
                 Cell secondCell = (Cell) firstCell.getCollidingCells().get(j);
-                if (secondCell == null) {
-                    boolean kappa123 = true;
-                }
                 if (!Utils.checkCollision(firstCell.getRectangle(), secondCell.getRectangle())) {
                     firstCell.removeCollidingCell(secondCell.getId());
                     secondCell.removeCollidingCell(firstCell.getId());
@@ -128,6 +151,11 @@ public class Dungeon {
         }
     }
 
+    /**
+     * Gets the colliding cell that is closest to the center of the circle.
+     *
+     * @return the closest colliding cell
+     */
     private Cell getClosestCollidingCell() {
         Cell closest = null;
 
@@ -140,6 +168,11 @@ public class Dungeon {
         return closest;
     }
 
+    /**
+     * Gets all the cells.
+     *
+     * @return the cells
+     */
     public ArrayList<Cell> getCells() {
         return cells;
     }
