@@ -18,6 +18,7 @@ public class Cell implements Comparable<Cell> {
     int id;
     private Rectangle rectangle;
     private Tuple<Integer, Integer> cellCenter;
+    private boolean isRoom;
 
     private double distanceFromCenterOfCircle;
     private ArrayList<Cell> collidingCells;
@@ -37,6 +38,7 @@ public class Cell implements Comparable<Cell> {
         int heightTiles = (random.nextInt() & Integer.MAX_VALUE) % Constants.CELL_MAX_TILES;
         int roomWidth = widthTiles >= Constants.CELL_MIN_TILES ? widthTiles * Constants.TILE_SIZE : Constants.CELL_MIN_TILES * Constants.TILE_SIZE;
         int roomHeight = heightTiles >= Constants.CELL_MIN_TILES ? heightTiles * Constants.TILE_SIZE : Constants.CELL_MIN_TILES * Constants.TILE_SIZE;
+        isRoom = roomWidth * roomHeight >= Constants.CELL_MAX_TILES * Constants.TILE_SIZE * Constants.CELL_MAX_TILES * Constants.TILE_SIZE / 2;
         System.out.println("Room w: " + roomWidth + ", Room h: " + roomHeight);
 
         Tuple<Integer, Integer> pointInCircle = getRandomPointInCircle();
@@ -52,7 +54,11 @@ public class Cell implements Comparable<Cell> {
     public void setRendering() {
         this.rectangle.setStrokeType(StrokeType.CENTERED);
         this.rectangle.setFill(Color.TRANSPARENT);
-        this.rectangle.setStroke(Color.web("white", 1.0));
+        if (isRoom) {
+            this.rectangle.setStroke(Color.web("green", 1.0));
+        } else {
+            this.rectangle.setStroke(Color.web("white", 1.0));
+        }
         this.rectangle.setStrokeWidth(1);
     }
 
@@ -121,8 +127,22 @@ public class Cell implements Comparable<Cell> {
         return rectangle;
     }
 
+    /**
+     * Gets the id of the cell.
+     *
+     * @return the id
+     */
     public int getId() {
         return id;
+    }
+
+    /**
+     * Gets whether the cell is a room or not. The cell is a room if it's big enough.
+     *
+     * @return true if cell is a room, otherwise false
+     */
+    public boolean isRoom() {
+        return isRoom;
     }
 
     /**

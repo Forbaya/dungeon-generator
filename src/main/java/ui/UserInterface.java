@@ -22,7 +22,7 @@ public class UserInterface {
         Circle circle = createCircle();
         group.getChildren().add(circle);
 
-        dungeon = new Dungeon(group, 15);
+        dungeon = new Dungeon(group, 35);
         try {
             dungeon.generateDungeon();
         } catch (Exception e) {
@@ -38,7 +38,7 @@ public class UserInterface {
     /**
      * Creates the circle used for generating cells.
      *
-     * @return
+     * @return the circle
      */
     public Circle createCircle() {
         Circle circle = new Circle(Constants.CIRCLE_CENTER_X, Constants.CIRCLE_CENTER_Y, Constants.CIRCLE_RADIUS);
