@@ -160,10 +160,10 @@ public class Cell implements Comparable<Cell> {
     public void move(Axis axis, int length) {
         if (axis == Axis.X_AXIS) {
             rectangle.setX(rectangle.getX() + length);
-            cellCenter.x = (int)rectangle.getX() + (int)rectangle.getWidth() / 2;
+            cellCenter.x = (int)rectangle.getX() + (int)rectangle.getWidth() / 2 - Constants.CIRCLE_CENTER_X;
         } else {
             rectangle.setY(rectangle.getY() + length);
-            cellCenter.y = (int)rectangle.getY() + (int)rectangle.getHeight() / 2;
+            cellCenter.y = (int)rectangle.getY() + (int)rectangle.getHeight() / 2 - Constants.CIRCLE_CENTER_Y;
         }
     }
 

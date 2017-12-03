@@ -22,7 +22,7 @@ public class UserInterface {
         Circle circle = createCircle();
         group.getChildren().add(circle);
 
-        dungeon = new Dungeon(group, 2);
+        dungeon = new Dungeon(group, 15);
         try {
             dungeon.generateDungeon();
         } catch (Exception e) {

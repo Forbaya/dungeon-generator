@@ -47,6 +47,7 @@ public class Dungeon {
             cells.add(newCell);
             group.getChildren().add(newCell.getRectangle());
         }
+        boolean kappa123 = true;
     }
 
     /**
@@ -111,7 +112,10 @@ public class Dungeon {
         for (int i = 0; i < cells.size(); i++) {
             Cell firstCell = cells.get(i);
             for (int j = 0; j < firstCell.getCollidingCells().size(); j++) {
-                Cell secondCell = cells.get(j);
+                Cell secondCell = (Cell) firstCell.getCollidingCells().get(j);
+                if (secondCell == null) {
+                    boolean kappa123 = true;
+                }
                 if (!Utils.checkCollision(firstCell.getRectangle(), secondCell.getRectangle())) {
                     firstCell.removeCollidingCell(secondCell.getId());
                     secondCell.removeCollidingCell(firstCell.getId());
