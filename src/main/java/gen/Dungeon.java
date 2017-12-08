@@ -5,6 +5,7 @@ import utils.ArrayList;
 import utils.Axis;
 import utils.Utils;
 
+import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -33,6 +34,7 @@ public class Dungeon {
     public void generateDungeon() throws Exception {
         generateCells();
         separateAllCollidingCells();
+        delaunayTriangulate();
     }
 
     /**
@@ -174,11 +176,17 @@ public class Dungeon {
     public void delaunayTriangulate() {
         ArrayList<Vertex> vertices = getCellCenters();
         Triangle superTriangle = createSuperTriangle(vertices);
+        triangles.add(superTriangle);
 
         for (int i = 0; i < vertices.size(); i++) {
             Vertex vertex = vertices.get(i);
             ArrayList<Triangle> badTriangles = findBadTriangles(vertex);
+            ArrayList<Edge> polygon = findBoundaryOfThePolygonalHole(badTriangles);
+            removeBadTrianglesFromTheTriangulation(badTriangles);
+            retriangulateThePolygonalHole(polygon, vertex);
         }
+
+        removeTrianglesThatShareAVertexWithSuperTriangle(superTriangle);
     }
 
     /**
@@ -270,7 +278,7 @@ public class Dungeon {
         ArrayList<Edge> badEdges = new ArrayList<>();
         for (int i = 0; i < polygonBoundary.size(); i++) {
             Edge firstEdge = polygonBoundary.get(i);
-            for (int j = 0; i < polygonBoundary.size(); j++) {
+            for (int j = 0; j < polygonBoundary.size(); j++) {
                 Edge secondEdge = polygonBoundary.get(j);
                 if (!firstEdge.equals(secondEdge) && firstEdge.isSame(secondEdge)) {
                     badEdges.add(firstEdge);
@@ -279,9 +287,56 @@ public class Dungeon {
             }
         }
 
-        // Remove duplicate edges.
+        Iterator<Edge> it = polygonBoundary.iterator();
+        while (it.hasNext()) {
+            Edge edge = it.next();
+            for (int i = 0; i < badEdges.size(); i++) {
+                Edge badEdge = badEdges.get(i);
+                if (edge != null && edge.isSame(badEdge)) {
+                    it.remove();
+                }
+            }
+        }
+
+//        for (int i = 0; i < polygonBoundary.size(); i++) {
+//            Edge edge = polygonBoundary.get(i);
+//            for (int j = 0; j < badEdges.size(); j++) {
+//                Edge badEdge = badEdges.get(j);
+//                if (edge.isSame(badEdge)) {
+//                    polygonBoundary.remove(i);
+//                }
+//            }
+//        }
 
         return polygonBoundary;
+    }
+
+    private void removeBadTrianglesFromTheTriangulation(ArrayList<Triangle> badTriangles) {
+        for (int i = 0; i < triangles.size(); i++) {
+            Triangle triangle = triangles.get(i);
+            for (int j = 0; j < badTriangles.size(); j++) {
+                Triangle badTriangle = badTriangles.get(j);
+                if (triangle.isSame(badTriangle)) {
+                    triangles.remove(i);
+                }
+            }
+        }
+    }
+
+    private void retriangulateThePolygonalHole(ArrayList<Edge> polygon, Vertex vertex) {
+        for (int i = 0; i < polygon.size(); i++) {
+            Edge edge = polygon.get(i);
+            triangles.add(new Triangle(edge.getFirstVertex(), edge.getSecondVertex(), vertex));
+        }
+    }
+
+    private void removeTrianglesThatShareAVertexWithSuperTriangle(Triangle triangle) {
+        for (int i = 0; i < triangles.size(); i++) {
+            Triangle t = triangles.get(i);
+            if (t.containsVertex(triangle.getFirstVertex()) || t.containsVertex(triangle.getSecondVertex()) || t.containsVertex(triangle.getThirdVertex())) {
+                triangles.remove(i);
+            }
+        }
     }
 
     /**

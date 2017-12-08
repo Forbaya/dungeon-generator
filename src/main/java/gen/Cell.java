@@ -38,8 +38,7 @@ public class Cell implements Comparable<Cell> {
         int heightTiles = (random.nextInt() & Integer.MAX_VALUE) % Constants.CELL_MAX_TILES;
         int roomWidth = widthTiles >= Constants.CELL_MIN_TILES ? widthTiles * Constants.TILE_SIZE : Constants.CELL_MIN_TILES * Constants.TILE_SIZE;
         int roomHeight = heightTiles >= Constants.CELL_MIN_TILES ? heightTiles * Constants.TILE_SIZE : Constants.CELL_MIN_TILES * Constants.TILE_SIZE;
-        isRoom = roomWidth * roomHeight >= Constants.CELL_MAX_TILES * Constants.TILE_SIZE * Constants.CELL_MAX_TILES * Constants.TILE_SIZE / 2;
-        System.out.println("Room w: " + roomWidth + ", Room h: " + roomHeight);
+        isRoom = widthTiles * heightTiles >= Constants.MIN_ROOM_TILES;
 
         Tuple<Integer, Integer> pointInCircle = getRandomPointInCircle();
         int rectX = Utils.snapIntoGrid(Constants.SCREEN_WIDTH / 2 + pointInCircle.x - roomWidth / 2);
@@ -53,11 +52,12 @@ public class Cell implements Comparable<Cell> {
      */
     public void setRendering() {
         this.rectangle.setStrokeType(StrokeType.CENTERED);
-        this.rectangle.setFill(Color.TRANSPARENT);
         if (isRoom) {
-            this.rectangle.setStroke(Color.web("green", 1.0));
+            this.rectangle.setFill(Color.GREEN);
+            this.rectangle.setStroke(Color.web("black", 1.0));
         } else {
-            this.rectangle.setStroke(Color.web("white", 1.0));
+            this.rectangle.setFill(Color.WHITE);
+            this.rectangle.setStroke(Color.web("black", 1.0));
         }
         this.rectangle.setStrokeWidth(1);
     }

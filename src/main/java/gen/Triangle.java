@@ -12,6 +12,9 @@ public class Triangle {
         this.firstVertex = firstVertex;
         this.secondVertex = secondVertex;
         this.thirdVertex = thirdVertex;
+        this.firstEdge = new Edge(firstVertex, secondVertex);
+        this.secondEdge = new Edge(secondVertex, thirdVertex);
+        this.thirdEdge = new Edge(thirdVertex, firstVertex);
     }
 
     public boolean containsVertex(Vertex vertex) {

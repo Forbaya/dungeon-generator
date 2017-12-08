@@ -1,11 +1,12 @@
 package utils;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * Array list for objects.
  */
-public class ArrayList<T> {
+public class ArrayList<T> implements Iterable<T> {
     private Object[] list;
     private int size;
 
@@ -73,5 +74,27 @@ public class ArrayList<T> {
      */
     public int size() {
         return this.size;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            int current = 0;
+
+            @Override
+            public boolean hasNext() {
+                return current < ArrayList.this.list.length;
+            }
+
+            @Override
+            public T next() {
+                return (T) list[current++];
+            }
+
+            @Override
+            public void remove() {
+                ArrayList.this.remove(current);
+            }
+        };
     }
 }
