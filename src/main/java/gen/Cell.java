@@ -63,15 +63,6 @@ public class Cell implements Comparable<Cell> {
     }
 
     /**
-     * Sets the color for JavaFX.
-     *
-     * @param color the color to set
-     */
-    public void setColor(String color) {
-        this.rectangle.setStroke(Color.web(color, 1.0));
-    }
-
-    /**
      * Creates to tuple that contains the center of the cell. Also creates a double variable for distance from the
      * center of the circle. These are used for separating cells from each other.
      *
@@ -167,7 +158,7 @@ public class Cell implements Comparable<Cell> {
      *
      * @return the ArrayList of colliding cells
      */
-    public ArrayList getCollidingCells() {
+    public ArrayList<Cell> getCollidingCells() {
         return collidingCells;
     }
 

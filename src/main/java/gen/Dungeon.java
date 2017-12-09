@@ -46,8 +46,7 @@ public class Dungeon {
     private void generateCells() throws Exception {
         for (int i = 0; i < cellCount; i++) {
             Cell newCell = new Cell(i);
-            for (int j = 0; j < cells.size(); j++) {
-                Cell oldCell = cells.get(j);
+            for (Cell oldCell : cells) {
                 if (Utils.checkCollision(newCell.getRectangle(), oldCell.getRectangle())) {
                     addCollisions(oldCell, newCell);
                 }
@@ -89,8 +88,8 @@ public class Dungeon {
      * @return true if some cells are colliding, otherwise false
      */
     private boolean cellsHaveCollisions() {
-        for (int i = 0; i < cells.size(); i++) {
-            if (cells.get(i).hasCollision()) {
+        for (Cell cell : cells) {
+            if (cell.hasCollision()) {
                 return true;
             }
         }
@@ -140,7 +139,7 @@ public class Dungeon {
         for (int i = 0; i < cells.size(); i++) {
             Cell firstCell = cells.get(i);
             for (int j = 0; j < firstCell.getCollidingCells().size(); j++) {
-                Cell secondCell = (Cell) firstCell.getCollidingCells().get(j);
+                Cell secondCell = firstCell.getCollidingCells().get(j);
                 if (!Utils.checkCollision(firstCell.getRectangle(), secondCell.getRectangle())) {
                     firstCell.removeCollidingCell(secondCell.getId());
                     secondCell.removeCollidingCell(firstCell.getId());
@@ -161,12 +160,12 @@ public class Dungeon {
     private Cell getClosestCollidingCell() {
         Cell closest = null;
 
-        for (int i = 0; i < cells.size(); i++) {
-            Cell cell = cells.get(i);
+        for (Cell cell : cells) {
             if (cell.hasCollision() && (closest == null ||cell.getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle())) {
                 closest = cell;
             }
         }
+
         return closest;
     }
 
@@ -178,8 +177,7 @@ public class Dungeon {
         Triangle superTriangle = createSuperTriangle(vertices);
         triangles.add(superTriangle);
 
-        for (int i = 0; i < vertices.size(); i++) {
-            Vertex vertex = vertices.get(i);
+        for (Vertex vertex : vertices) {
             ArrayList<Triangle> badTriangles = findBadTriangles(vertex);
             ArrayList<Edge> polygon = findBoundaryOfThePolygonalHole(badTriangles);
             removeBadTrianglesFromTheTriangulation(badTriangles);
@@ -187,6 +185,7 @@ public class Dungeon {
         }
 
         removeTrianglesThatShareAVertexWithSuperTriangle(superTriangle);
+        renderTriangles();
     }
 
     /**
@@ -197,8 +196,7 @@ public class Dungeon {
     private ArrayList<Vertex> getCellCenters() {
         ArrayList<Vertex> cellCenters = new ArrayList<>();
 
-        for (int i = 0; i < cells.size(); i++) {
-            Cell cell = cells.get(i);
+        for (Cell cell : cells) {
             if (cell.isRoom()) {
                 Vertex vertex = new Vertex(cell.getCellCenter().x, cell.getCellCenter().y);
                 cellCenters.add(vertex);
@@ -247,7 +245,7 @@ public class Dungeon {
     }
 
     /**
-     * Finds the triangles that aren't valid in delaunay triangulation.
+     * Finds the triangles that aren't valid in Delaunay triangulation.
      *
      * @param vertex a point
      * @return a list of bad triangles
@@ -290,34 +288,24 @@ public class Dungeon {
         Iterator<Edge> it = polygonBoundary.iterator();
         while (it.hasNext()) {
             Edge edge = it.next();
-            for (int i = 0; i < badEdges.size(); i++) {
-                Edge badEdge = badEdges.get(i);
-                if (edge != null && edge.isSame(badEdge)) {
+            for (Edge badEdge : badEdges) {
+                if (edge.isSame(badEdge)) {
                     it.remove();
+                    break;
                 }
             }
         }
-
-//        for (int i = 0; i < polygonBoundary.size(); i++) {
-//            Edge edge = polygonBoundary.get(i);
-//            for (int j = 0; j < badEdges.size(); j++) {
-//                Edge badEdge = badEdges.get(j);
-//                if (edge.isSame(badEdge)) {
-//                    polygonBoundary.remove(i);
-//                }
-//            }
-//        }
 
         return polygonBoundary;
     }
 
     private void removeBadTrianglesFromTheTriangulation(ArrayList<Triangle> badTriangles) {
-        for (int i = 0; i < triangles.size(); i++) {
-            Triangle triangle = triangles.get(i);
-            for (int j = 0; j < badTriangles.size(); j++) {
-                Triangle badTriangle = badTriangles.get(j);
+        Iterator<Triangle> it = triangles.iterator();
+        while (it.hasNext()) {
+            Triangle triangle = it.next();
+            for (Triangle badTriangle : badTriangles) {
                 if (triangle.isSame(badTriangle)) {
-                    triangles.remove(i);
+                    it.remove();
                 }
             }
         }
@@ -336,6 +324,15 @@ public class Dungeon {
             if (t.containsVertex(triangle.getFirstVertex()) || t.containsVertex(triangle.getSecondVertex()) || t.containsVertex(triangle.getThirdVertex())) {
                 triangles.remove(i);
             }
+        }
+    }
+
+    public void renderTriangles() {
+        for (int i = 0; i < triangles.size(); i++) {
+            Triangle triangle = triangles.get(i);
+            group.getChildren().add(triangle.getFirstEdge().getLine());
+            group.getChildren().add(triangle.getSecondEdge().getLine());
+            group.getChildren().add(triangle.getThirdEdge().getLine());
         }
     }
 

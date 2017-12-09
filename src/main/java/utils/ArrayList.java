@@ -1,7 +1,9 @@
 package utils;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Array list for objects.
@@ -9,10 +11,12 @@ import java.util.Iterator;
 public class ArrayList<T> implements Iterable<T> {
     private Object[] list;
     private int size;
+    private int modCount;
 
     public ArrayList() {
         size = 0;
         list = new Object[5];
+        modCount = 0;
     }
 
     /**
@@ -21,6 +25,7 @@ public class ArrayList<T> implements Iterable<T> {
      * @param object the object
      */
     public void add(T object) {
+        modCount++;
         if (list.length - size <= 2) {
             increaseListSize();
         }
@@ -51,6 +56,7 @@ public class ArrayList<T> implements Iterable<T> {
      * @return the removed object
      */
     public Object remove(int index) {
+        modCount++;
         if (index < size) {
             Object object = list[index];
             list[index] = null;
@@ -73,27 +79,56 @@ public class ArrayList<T> implements Iterable<T> {
      * @return the size of the list
      */
     public int size() {
-        return this.size;
+        return size;
     }
 
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             int current = 0;
+            int lastRet = -1;
+            int expectedModCount = modCount;
 
             @Override
             public boolean hasNext() {
-                return current < ArrayList.this.list.length;
+                return current != size;
             }
 
             @Override
             public T next() {
-                return (T) list[current++];
+                checkForComodification();
+                int i = current;
+                if (i >= size) {
+                    throw new NoSuchElementException();
+                }
+                Object[] elementData = ArrayList.this.list;
+                if (i >= list.length) {
+                    throw new ConcurrentModificationException();
+                }
+                current = i + 1;
+                return (T) elementData[lastRet = i];
             }
 
             @Override
             public void remove() {
-                ArrayList.this.remove(current);
+                if (lastRet < 0) {
+                    throw new IllegalStateException();
+                }
+                checkForComodification();
+                try {
+                    ArrayList.this.remove(lastRet);
+                    current = lastRet;
+                    lastRet = -1;
+                    expectedModCount = modCount;
+                } catch (IndexOutOfBoundsException ex) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+
+            void checkForComodification() {
+                if (modCount != expectedModCount) {
+                    throw new ConcurrentModificationException();
+                }
             }
         };
     }
