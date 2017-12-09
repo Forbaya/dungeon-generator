@@ -32,6 +32,14 @@
                 <artifactId>pitest-maven</artifactId>
                 <version>1.1.8</version>
             </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.3.0</version>
+                <configuration>
+                    <repoToken>zUNmtRIXpjYJHfq6ndojZUxyu8t5NpQ8R</repoToken>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
