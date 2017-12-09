@@ -1,6 +1,7 @@
 package gen;
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import utils.ArrayList;
@@ -28,6 +29,7 @@ public class Cell implements Comparable<Cell> {
         collidingCells = new ArrayList<>();
         createRectangle();
         createCellCenterAndDistanceFromCircle((int)rectangle.getX(), (int)rectangle.getY(), (int)rectangle.getWidth(), (int)rectangle.getHeight());
+        setRectangleRendering();
     }
 
     /**
@@ -44,13 +46,12 @@ public class Cell implements Comparable<Cell> {
         int rectX = Utils.snapIntoGrid(Constants.SCREEN_WIDTH / 2 + pointInCircle.x - roomWidth / 2);
         int rectY = Utils.snapIntoGrid(Constants.SCREEN_HEIGHT / 2 + pointInCircle.y - roomHeight / 2);
         this.rectangle = new Rectangle(rectX, rectY, roomWidth, roomHeight);
-        setRendering();
     }
 
     /**
-     * Sets the rendering options for JavaFX.
+     * Sets the rendering options for the rectangle.
      */
-    public void setRendering() {
+    public void setRectangleRendering() {
         this.rectangle.setStrokeType(StrokeType.CENTERED);
         if (isRoom) {
             this.rectangle.setFill(Color.GREEN);
@@ -101,9 +102,10 @@ public class Cell implements Comparable<Cell> {
      */
     public Cell getClosestCollidingCell() {
         Cell closest = collidingCells.get(0);
-        for (int i = 1; i < collidingCells.size(); i++) {
-            if (collidingCells.get(i).getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle()) {
-                closest = collidingCells.get(i);
+
+        for (Cell collidingCell : collidingCells) {
+            if (collidingCell.getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle()) {
+                closest = collidingCell;
             }
         }
         return closest;

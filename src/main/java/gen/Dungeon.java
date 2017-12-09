@@ -319,14 +319,18 @@ public class Dungeon {
     }
 
     private void removeTrianglesThatShareAVertexWithSuperTriangle(Triangle triangle) {
-        for (int i = 0; i < triangles.size(); i++) {
-            Triangle t = triangles.get(i);
+        Iterator<Triangle> it = triangles.iterator();
+        while (it.hasNext()) {
+            Triangle t = it.next();
             if (t.containsVertex(triangle.getFirstVertex()) || t.containsVertex(triangle.getSecondVertex()) || t.containsVertex(triangle.getThirdVertex())) {
-                triangles.remove(i);
+                it.remove();
             }
         }
     }
 
+    /**
+     * Renders the delaunay triangles.
+     */
     public void renderTriangles() {
         for (int i = 0; i < triangles.size(); i++) {
             Triangle triangle = triangles.get(i);
