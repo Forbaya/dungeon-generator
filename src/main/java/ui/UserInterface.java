@@ -1,6 +1,5 @@
 package ui;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gen.Dungeon;
 import javafx.scene.Group;
 import javafx.scene.Scene;
