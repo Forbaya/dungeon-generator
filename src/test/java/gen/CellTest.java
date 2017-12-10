@@ -1,7 +1,6 @@
 package gen;
 
 import javafx.scene.shape.Rectangle;
-import org.junit.Before;
 import org.junit.Test;
 import utils.Constants;
 import utils.TestHelper;
