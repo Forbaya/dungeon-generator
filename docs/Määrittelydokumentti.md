@@ -14,4 +14,5 @@ Aputietorakenteina tarvitsen ainakin ArrayListin kaltaista listarakennetta, taul
 
 ### Lähteet:
 [Delaunay triangulationin Wikipedia-artikkeli](https://en.wikipedia.org/wiki/Delaunay_triangulation)
+
 [Tietorakenteet ja algoritmit -kurssimateriaali](https://www.cs.helsinki.fi/u/floreen/tira2013/tira.pdf)
