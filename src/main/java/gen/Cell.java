@@ -22,6 +22,11 @@ public class Cell implements Comparable<Cell> {
     private double distanceFromCenterOfCircle;
     private ArrayList<Cell> collidingCells;
 
+    /**
+     * The normal constructor.
+     *
+     * @param id the id
+     */
     public Cell(int id) {
         this.id = id;
         collidingCells = new ArrayList<>();
@@ -62,7 +67,7 @@ public class Cell implements Comparable<Cell> {
     /**
      * Sets the rendering options for the rectangle.
      */
-    public void setRectangleRendering() {
+    private void setRectangleRendering() {
         this.rectangle.setStrokeType(StrokeType.CENTERED);
         if (isRoom) {
             this.rectangle.setFill(Color.GREEN);
@@ -95,7 +100,7 @@ public class Cell implements Comparable<Cell> {
      *
      * @return a random point in the circle
      */
-    public Tuple<Integer, Integer> getRandomPointInCircle() {
+    private Tuple<Integer, Integer> getRandomPointInCircle() {
         double t = 2 * Math.PI * Math.random();
         double u = Math.random() + Math.random();
         double r = u > 1 ? 2 - u : u;
@@ -191,6 +196,9 @@ public class Cell implements Comparable<Cell> {
         updateCellCenterAndDistanceFromCircleCenter();
     }
 
+    /**
+     * Updates the cell center and distance from the circle center. This is called when the values of rectangle are changed.
+     */
     private void updateCellCenterAndDistanceFromCircleCenter() {
         cellCenter.x = (int)rectangle.getX() + (int)rectangle.getWidth() / 2 - Constants.CIRCLE_CENTER_X;
         cellCenter.y = (int)rectangle.getY() + (int)rectangle.getHeight() / 2 - Constants.CIRCLE_CENTER_Y;
@@ -206,10 +214,16 @@ public class Cell implements Comparable<Cell> {
         collidingCells.add(cell);
     }
 
+    /**
+     * Removes a colliding cell from the list of colliding cells.
+     *
+     * @param id the id of the cell to be removed.
+     */
     public void removeCollidingCell(int id) {
         for (int i = 0; i < collidingCells.size(); i++) {
             if (collidingCells.get(i).getId() == id) {
                 collidingCells.remove(i);
+                break;
             }
         }
     }
@@ -222,7 +236,6 @@ public class Cell implements Comparable<Cell> {
     public boolean hasCollision() {
         return collidingCells.size() > 0;
     }
-
 
     @Override
     public int compareTo(Cell otherCell) {

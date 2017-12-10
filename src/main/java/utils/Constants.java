@@ -6,7 +6,7 @@ package utils;
 public class Constants {
     public static int CELL_COUNT = 50;
     public static int TILE_SIZE = 16;
-    public static int SCREEN_WIDTH = 1920;
+    public static int SCREEN_WIDTH = 1700;
     public static int SCREEN_HEIGHT = SCREEN_WIDTH / 16 * 9;
     public static int CIRCLE_RADIUS = TILE_SIZE * 16;
     public static int CELL_MIN_TILES = 2;

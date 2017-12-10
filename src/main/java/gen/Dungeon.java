@@ -169,7 +169,7 @@ public class Dungeon {
     private Cell getClosestCollidingCell() {
         Cell closest = null;
         for (Cell cell : cells) {
-            if (cell.hasCollision() && (closest == null ||cell.getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle())) {
+            if (cell.hasCollision() && (closest == null || cell.getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle())) {
                 closest = cell;
             }
         }
