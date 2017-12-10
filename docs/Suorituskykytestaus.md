@@ -41,7 +41,7 @@ Pienillä syötteillä Javan toteutus toimi nopeammin, mutta jostain syystä suu
 
 Lukujen poisto taas toimi jokaisella syötteellä nopeammin Javan toteutuksella. 1000000 elementin poistossa ero oli todella suuri. Oma toteutukseni poisti elementit ~3,1 minuutissa, kun Javan toteutus teki sen ~22,5 sekunnissa.
 
-### Delaunay triangulation
+#### Delaunay triangulation
 Delaunay triangulation toimi tehokkaasti
 
 | Huoneiden määrä | Aika   |

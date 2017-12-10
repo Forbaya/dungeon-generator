@@ -1,0 +1,4 @@
+### Viikkoraportti 6
+Tällä viikolla sain viimeisteltyä Delaunay triangulationin. Sen tekemiseen tarvitsin ArrayListini toteuttamaan Iterable<T> rajapinnan. Tämä tuotti jonkin verran ongelmia, mutta sain sen lopuksi tehtyä.
+Tein tällä viikolla myös paljon yksikkötestejä mm. Dungeon, Cell, ArrayList, Vertex, Edge, Triangle -luokille. Opin tällä viikolla testaamaan private metodeja reflektion avulla.Lisäksi tein suorituskykytestejä ArrayListille ja Delaunay triangulationille.
+Kurssin loppu häämöttää. Nyt täytyy saada tehtyä Delaunay triangulationista virittävä puu Primin algoritmilla, sekä tehdä loput käytävät. 
