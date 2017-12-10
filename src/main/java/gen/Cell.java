@@ -1,11 +1,9 @@
 package gen;
 
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import utils.ArrayList;
-import utils.Axis;
 import utils.Constants;
 import utils.Tuple;
 import utils.Utils;
@@ -40,12 +38,25 @@ public class Cell implements Comparable<Cell> {
         int heightTiles = (random.nextInt() & Integer.MAX_VALUE) % Constants.CELL_MAX_TILES;
         int roomWidth = widthTiles >= Constants.CELL_MIN_TILES ? widthTiles * Constants.TILE_SIZE : Constants.CELL_MIN_TILES * Constants.TILE_SIZE;
         int roomHeight = heightTiles >= Constants.CELL_MIN_TILES ? heightTiles * Constants.TILE_SIZE : Constants.CELL_MIN_TILES * Constants.TILE_SIZE;
-        isRoom = widthTiles * heightTiles >= Constants.MIN_ROOM_TILES;
+        isRoom = widthTiles * heightTiles >= Constants.MIN_ROOM_AREA;
 
         Tuple<Integer, Integer> pointInCircle = getRandomPointInCircle();
         int rectX = Utils.snapIntoGrid(Constants.SCREEN_WIDTH / 2 + pointInCircle.x - roomWidth / 2);
         int rectY = Utils.snapIntoGrid(Constants.SCREEN_HEIGHT / 2 + pointInCircle.y - roomHeight / 2);
         this.rectangle = new Rectangle(rectX, rectY, roomWidth, roomHeight);
+    }
+
+    /**
+     * Sets the rectangle manually. Used in tests.
+     *
+     * @param x      the x-coordinate
+     * @param y      the y-coordinate
+     * @param width  the width
+     * @param height the height
+     */
+    public void setRectangle(int x, int y, int width, int height) {
+        this.rectangle = new Rectangle(x, y, width, height);
+        updateCellCenterAndDistanceFromCircleCenter();
     }
 
     /**
@@ -140,6 +151,7 @@ public class Cell implements Comparable<Cell> {
 
     /**
      * Gets the distance from center of the circle.
+     *
      * @return
      */
     public double getDistanceFromCenterOfCircle() {
@@ -170,14 +182,19 @@ public class Cell implements Comparable<Cell> {
      * @param axis   the axis to move in
      * @param length the length to be moved
      */
-    public void move(Axis axis, int length) {
-        if (axis == Axis.X_AXIS) {
+    public void move(Constants.Axis axis, int length) {
+        if (axis == Constants.Axis.X_AXIS) {
             rectangle.setX(rectangle.getX() + length);
-            cellCenter.x = (int)rectangle.getX() + (int)rectangle.getWidth() / 2 - Constants.CIRCLE_CENTER_X;
         } else {
             rectangle.setY(rectangle.getY() + length);
-            cellCenter.y = (int)rectangle.getY() + (int)rectangle.getHeight() / 2 - Constants.CIRCLE_CENTER_Y;
         }
+        updateCellCenterAndDistanceFromCircleCenter();
+    }
+
+    private void updateCellCenterAndDistanceFromCircleCenter() {
+        cellCenter.x = (int)rectangle.getX() + (int)rectangle.getWidth() / 2 - Constants.CIRCLE_CENTER_X;
+        cellCenter.y = (int)rectangle.getY() + (int)rectangle.getHeight() / 2 - Constants.CIRCLE_CENTER_Y;
+        distanceFromCenterOfCircle = Math.sqrt(cellCenter.x * cellCenter.x + cellCenter.y * cellCenter.y);
     }
 
     /**

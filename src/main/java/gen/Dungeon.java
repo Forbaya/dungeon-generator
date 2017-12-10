@@ -2,7 +2,7 @@ package gen;
 
 import javafx.scene.Group;
 import utils.ArrayList;
-import utils.Axis;
+import utils.Constants;
 import utils.Utils;
 
 import java.util.Iterator;
@@ -57,6 +57,15 @@ public class Dungeon {
     }
 
     /**
+     * Method for adding cells. This is used in tests.
+     *
+     * @param cell the cell to be added
+     */
+    public void addCell(Cell cell) {
+        this.cells.add(cell);
+    }
+
+    /**
      * Marks the two cells as colliding.
      *
      * @param firstCell  the first cell
@@ -108,26 +117,26 @@ public class Dungeon {
         int xCollisionDistance = Math.abs(xDifferenceBetweenCenters - (int)firstCell.getRectangle().getWidth() / 2 - (int)secondCell.getRectangle().getWidth() / 2);
         int yCollisionDistance = Math.abs(yDifferenceBetweenCenters - (int)firstCell.getRectangle().getHeight() / 2 - (int)secondCell.getRectangle().getHeight() / 2);
 
-        Axis axis = getAxis(xCollisionDistance, yCollisionDistance);
+        Constants.Axis axis = getAxis(xCollisionDistance, yCollisionDistance);
         int direction = secondCell.getCellCenter().x >= 0 ? 1 : -1;
-        int amountToMove = axis == Axis.X_AXIS ? xCollisionDistance : yCollisionDistance;
+        int amountToMove = axis == Constants.Axis.X_AXIS ? xCollisionDistance : yCollisionDistance;
         secondCell.move(axis, amountToMove * direction);
         updateCellCollisions(secondCell);
     }
 
     /**
-     * Gets the axis that a cell is moved in. The cell is moved in the axis that has a bigger collision distance.
-     * If the x-axis collision distance is same as the y-axis collision distance, the axis is random.
+     * Gets the axis that a cell is moved in. The cell is moved in the axis that has a smaller collision distance.
+     * If the x-axis collision distance is same as the y-axis collision distance, the axis is randomed.
      *
      * @param xCollisionDistance the x-axis collision distance
      * @param yCollisionDistance the y-axis collision distance
      * @return the axis
      */
-    public Axis getAxis(int xCollisionDistance, int yCollisionDistance) {
+    private Constants.Axis getAxis(int xCollisionDistance, int yCollisionDistance) {
         if (xCollisionDistance == yCollisionDistance) {
-            return random.nextFloat() > 0.5 ? Axis.X_AXIS : Axis.Y_AXIS;
+            return random.nextFloat() > 0.5 ? Constants.Axis.X_AXIS : Constants.Axis.Y_AXIS;
         }
-        return xCollisionDistance < yCollisionDistance ? Axis.X_AXIS : Axis.Y_AXIS;
+        return xCollisionDistance < yCollisionDistance ? Constants.Axis.X_AXIS : Constants.Axis.Y_AXIS;
     }
 
     /**
@@ -159,13 +168,11 @@ public class Dungeon {
      */
     private Cell getClosestCollidingCell() {
         Cell closest = null;
-
         for (Cell cell : cells) {
             if (cell.hasCollision() && (closest == null ||cell.getDistanceFromCenterOfCircle() < closest.getDistanceFromCenterOfCircle())) {
                 closest = cell;
             }
         }
-
         return closest;
     }
 
@@ -207,7 +214,8 @@ public class Dungeon {
     }
 
     /**
-     * Creates the super triangle that contains all the other triangles.
+     * Creates the super triangle that contains all the other triangles. The super triangle  and all edges
+     * connecting to it will be removed in the end.
      *
      * @param vertices the vertices
      * @return the super triangle
@@ -263,6 +271,12 @@ public class Dungeon {
         return badTriangles;
     }
 
+    /**
+     * Finds the boundary of the polygonal hole.
+     *
+     * @param badTriangles the bad triangles
+     * @return the boundary of the polygonal hole
+     */
     public ArrayList<Edge> findBoundaryOfThePolygonalHole(ArrayList<Triangle> badTriangles) {
         ArrayList<Edge> polygonBoundary = new ArrayList<>();
 
@@ -299,6 +313,11 @@ public class Dungeon {
         return polygonBoundary;
     }
 
+    /**
+     * Removes the bad triangles from the triangulation.
+     *
+     * @param badTriangles the bad triangles
+     */
     private void removeBadTrianglesFromTheTriangulation(ArrayList<Triangle> badTriangles) {
         Iterator<Triangle> it = triangles.iterator();
         while (it.hasNext()) {
@@ -311,6 +330,12 @@ public class Dungeon {
         }
     }
 
+    /**
+     * Creates new triangles in the polygonal hole by connecting all edges to a vertex.
+     *
+     * @param polygon the polygon
+     * @param vertex  the vertex
+     */
     private void retriangulateThePolygonalHole(ArrayList<Edge> polygon, Vertex vertex) {
         for (int i = 0; i < polygon.size(); i++) {
             Edge edge = polygon.get(i);
@@ -318,6 +343,11 @@ public class Dungeon {
         }
     }
 
+    /**
+     * Removes all the triangles from the triangulation that share a vertex with the super triangle.
+     *
+     * @param triangle the super triangle
+     */
     private void removeTrianglesThatShareAVertexWithSuperTriangle(Triangle triangle) {
         Iterator<Triangle> it = triangles.iterator();
         while (it.hasNext()) {
