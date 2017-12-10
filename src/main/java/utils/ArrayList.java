@@ -82,6 +82,15 @@ public class ArrayList<T> implements Iterable<T> {
         return size;
     }
 
+    /**
+     * Checks whether the ArrayList is empty.
+     *
+     * @return true if ArrayList is empty, otherwise false
+     */
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
