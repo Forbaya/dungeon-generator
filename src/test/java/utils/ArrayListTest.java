@@ -3,6 +3,11 @@ package utils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Iterator;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class ArrayListTest extends TestHelper {
     private ArrayList<Integer> intArrayList;
 
@@ -56,5 +61,32 @@ public class ArrayListTest extends TestHelper {
         assertEqualsWithMessage("Expected to have %d elements but had %d elements", 1, intArrayList.size());
         intArrayList.remove(0);
         assertEqualsWithMessage("Expected to have %d elements but had %d elements", 0, intArrayList.size());
+    }
+
+    /**
+     * Tests an Iterator of the ArrayList.
+     */
+    @Test
+    public void testArrayListIterator() {
+        intArrayList.add(0);
+        intArrayList.add(1);
+        intArrayList.add(2);
+
+        Iterator<Integer> it = intArrayList.iterator();
+
+        assertTrue(it.hasNext());
+        int firstElement = it.next();
+        assertEqualsWithMessage("The number should be %d but was %d", 0, firstElement);
+        it.remove();
+        assertEqualsWithMessage("The size of the ArrayList should be %d but was %d", 2, intArrayList.size());
+        assertTrue(it.hasNext());
+        firstElement = it.next();
+        assertEqualsWithMessage("The number should be %d but was %d", 1, firstElement);
+        it.remove();
+        assertTrue(it.hasNext());
+        firstElement = it.next();
+        assertEqualsWithMessage("The number should be %d but was %d", 2, firstElement);
+        it.remove();
+        assertFalse(it.hasNext());
     }
 }

@@ -36,7 +36,12 @@ public class ArrayList<T> implements Iterable<T> {
      * Doubles the size of the list.
      */
     private void increaseListSize() {
-        list = Arrays.copyOf(list, list.length * 2);
+        Object[] biggerList = new Object[list.length * 2];
+        for (int i = 0; i < list.length; i++) {
+            biggerList[i] = list[i];
+        }
+
+        list = biggerList;
     }
 
     /**
@@ -91,6 +96,11 @@ public class ArrayList<T> implements Iterable<T> {
         return size == 0;
     }
 
+    /**
+     * Creates an iterator to iterate through the ArrayList
+     *
+     * @return the iterator
+     */
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
@@ -134,6 +144,9 @@ public class ArrayList<T> implements Iterable<T> {
                 }
             }
 
+            /**
+             * Checks whether the ArrayList has been modified as many times as expected.
+             */
             void checkForComodification() {
                 if (modCount != expectedModCount) {
                     throw new ConcurrentModificationException();
