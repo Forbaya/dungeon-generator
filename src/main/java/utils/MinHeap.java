@@ -1,12 +1,13 @@
 package utils;
 
 import gen.Cell;
+import gen.Edge;
 
 /**
  * Heap data structure for cells.
  */
-public class Heap {
-    private Cell[] heap;
+public class MinHeap {
+    private Edge[] heap;
     private int size;
     private int maxSize;
 
@@ -15,9 +16,9 @@ public class Heap {
      *
      * @param maxSize the max size of the heap
      */
-    public Heap(int maxSize) {
+    public MinHeap(int maxSize) {
         this.maxSize = maxSize;
-        heap = new Cell[maxSize + 1];
+        heap = new Edge[maxSize + 1];
         size = 0;
     }
 
@@ -55,17 +56,17 @@ public class Heap {
     }
 
     /**
-     * Inserts a new cell to the heap and heapifies.
+     * Inserts a new edge to the heap and heapifies.
      *
-     * @param cell the cell to be inserted
+     * @param edge the edge to be inserted
      * @throws Exception an Exception
      */
-    public void insert(Cell cell) throws Exception {
+    public void insert(Edge edge) throws Exception {
         if (size == maxSize) {
             throw new Exception("The heap is full!");
         } else {
             size++;
-            heap[size] = cell;
+            heap[size] = edge;
             insertHeapify();
         }
     }
@@ -86,16 +87,16 @@ public class Heap {
     }
 
     /**
-     * Removes the minimum cell from the heap and heapifies.
+     * Removes the shortest edge from the heap and heapifies.
      *
-     * @return the minimum cell that was removed from the heap
+     * @return the shortest edge that was removed from the heap
      * @throws Exception an Exception
      */
-    public Cell removeMin() throws Exception {
+    public Edge removeMin() throws Exception {
         if (isEmpty()) {
             throw new Exception("The heap is empty!");
         }
-        Cell min = getMin();
+        Edge min = getMin();
         heap[1] = heap[size];
         size--;
         removeHeapify();
@@ -103,12 +104,12 @@ public class Heap {
     }
 
     /**
-     * Gets the minimum cell from the heap.
+     * Gets the shortest edge from the heap.
      *
-     * @return the minimum cell
+     * @return the shortest edge
      * @throws Exception an Exception
      */
-    public Cell getMin() throws Exception {
+    public Edge getMin() throws Exception {
         if (isEmpty()) {
             throw new Exception("The heap is empty!");
         }
@@ -157,7 +158,7 @@ public class Heap {
      * @param j the element j
      */
     private void swap(int i, int j) {
-        Cell tmp = heap[i];
+        Edge tmp = heap[i];
         heap[i] = heap[j];
         heap[j] = tmp;
     }

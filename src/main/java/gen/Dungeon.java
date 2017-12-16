@@ -15,12 +15,14 @@ public class Dungeon {
     private ArrayList<Cell> cells;
     private Group group;
     private int cellCount;
+    private int roomCount;
     private Random random;
     private ArrayList<Triangle> triangles;
 
     public Dungeon(Group group, int cellCount) {
         this.group = group;
         this.cellCount = cellCount;
+        roomCount = 0;
         cells = new ArrayList<>();
         random = new Random();
         triangles = new ArrayList<>();
@@ -46,6 +48,9 @@ public class Dungeon {
     private void generateCells() throws Exception {
         for (int i = 0; i < cellCount; i++) {
             Cell newCell = new Cell(i);
+            if (newCell.isRoom()) {
+                roomCount++;
+            }
             for (Cell oldCell : cells) {
                 if (Utils.checkCollision(newCell.getRectangle(), oldCell.getRectangle())) {
                     addCollisions(oldCell, newCell);
@@ -83,7 +88,7 @@ public class Dungeon {
      *
      * @throws Exception an Exception
      */
-    private void separateAllCollidingCells() throws Exception {
+    private void separateAllCollidingCells() {
         while (cellsHaveCollisions()) {
             Cell closestCollidingCell = getClosestCollidingCell();
             Cell secondClosestCollidingCell = closestCollidingCell.getClosestCollidingCell();
@@ -368,6 +373,17 @@ public class Dungeon {
             group.getChildren().add(triangle.getSecondEdge().getLine());
             group.getChildren().add(triangle.getThirdEdge().getLine());
         }
+    }
+
+    /**
+     * Builds a minimum spanning tree by using Prim's algorithm.
+     */
+    public void buildMinimumSpanningTree() {
+
+    }
+
+    private void createGraphFromDelaunayTriangles() {
+        Graph graph = new Graph(roomCount);
     }
 
     /**
