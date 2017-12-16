@@ -1,5 +1,7 @@
 package utils;
 
+import gen.Edge;
+
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -41,6 +43,23 @@ public class ArrayList<T> implements Iterable<T> {
         }
 
         list = biggerList;
+    }
+
+    /**
+     * Checks whether the ArrayList contains a given element.
+     *
+     * @param element the element
+     * @return true if ArrayList contains the element, otherwise false
+     */
+    public boolean containsEdge(Edge element) {
+        for (int i = 0; i < size; i++) {
+            Edge edge = (Edge) list[i];
+            if (edge.isSame(element)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

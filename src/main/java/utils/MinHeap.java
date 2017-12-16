@@ -86,6 +86,11 @@ public class MinHeap {
         }
     }
 
+    public void decreaseKey(int v, int key) {
+        Edge i = heap[v];
+
+    }
+
     /**
      * Removes the shortest edge from the heap and heapifies.
      *

@@ -25,8 +25,8 @@ public class MinHeapTest extends TestHelper {
      */
     @Test
     public void testInsert() throws Exception {
-        Edge firstEdge = new Edge(new Vertex(1, 0), new Vertex(2, 0));
-        Edge secondEdge = new Edge(new Vertex(2, 0), new Vertex(4, 0));
+        Edge firstEdge = new Edge(new Vertex(-1, 1, 0), new Vertex(-1, 2, 0));
+        Edge secondEdge = new Edge(new Vertex(-1, 2, 0), new Vertex(-1, 4, 0));
         minHeap.insert(firstEdge);
         minHeap.insert(secondEdge);
 
@@ -40,8 +40,8 @@ public class MinHeapTest extends TestHelper {
      */
     @Test
     public void testRemoveMin() throws Exception {
-        Edge firstEdge = new Edge(new Vertex(1, 0), new Vertex(2, 0));
-        Edge secondEdge = new Edge(new Vertex(2, 0), new Vertex(4, 0));
+        Edge firstEdge = new Edge(new Vertex(-1, 1, 0), new Vertex(-1, 2, 0));
+        Edge secondEdge = new Edge(new Vertex(-1, 2, 0), new Vertex(-1, 4, 0));
         minHeap.insert(firstEdge);
         minHeap.insert(secondEdge);
 

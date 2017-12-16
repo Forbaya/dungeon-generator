@@ -3,6 +3,7 @@ package gen;
 import javafx.scene.Group;
 import utils.ArrayList;
 import utils.Constants;
+import utils.Tuple;
 import utils.Utils;
 
 import java.util.Iterator;
@@ -13,17 +14,19 @@ import java.util.Random;
  */
 public class Dungeon {
     private ArrayList<Cell> cells;
+    private ArrayList<Cell> rooms;
     private Group group;
     private int cellCount;
     private int roomCount;
     private Random random;
     private ArrayList<Triangle> triangles;
+    private int roomIds[];
 
     public Dungeon(Group group, int cellCount) {
         this.group = group;
         this.cellCount = cellCount;
-        roomCount = 0;
         cells = new ArrayList<>();
+        rooms = new ArrayList<>();
         random = new Random();
         triangles = new ArrayList<>();
     }
@@ -37,6 +40,7 @@ public class Dungeon {
         generateCells();
         separateAllCollidingCells();
         delaunayTriangulate();
+        buildMinimumSpanningTree();
     }
 
     /**
@@ -48,17 +52,19 @@ public class Dungeon {
     private void generateCells() throws Exception {
         for (int i = 0; i < cellCount; i++) {
             Cell newCell = new Cell(i);
-            if (newCell.isRoom()) {
-                roomCount++;
-            }
             for (Cell oldCell : cells) {
                 if (Utils.checkCollision(newCell.getRectangle(), oldCell.getRectangle())) {
                     addCollisions(oldCell, newCell);
                 }
             }
             cells.add(newCell);
+            if (newCell.isRoom()) {
+                rooms.add(newCell);
+            }
             group.getChildren().add(newCell.getRectangle());
         }
+        roomCount = rooms.size();
+        roomIds = getRoomIds();
     }
 
     /**
@@ -197,7 +203,7 @@ public class Dungeon {
         }
 
         removeTrianglesThatShareAVertexWithSuperTriangle(superTriangle);
-        renderTriangles();
+        //renderDelaunayTriangles();
     }
 
     /**
@@ -210,7 +216,7 @@ public class Dungeon {
 
         for (Cell cell : cells) {
             if (cell.isRoom()) {
-                Vertex vertex = new Vertex(cell.getCellCenter().x, cell.getCellCenter().y);
+                Vertex vertex = new Vertex(cell.getId(), cell.getCellCenter().x, cell.getCellCenter().y);
                 cellCenters.add(vertex);
             }
         }
@@ -246,9 +252,9 @@ public class Dungeon {
         int midX = (minX + maxX) / 2;
         int midY = (minY + maxY) / 2;
 
-        Vertex v1 = new Vertex(midX - 2 * deltaMax, midY - deltaMax);
-        Vertex v2 = new Vertex(midX, midY + 2 * deltaMax);
-        Vertex v3 = new Vertex(midX + 2 * deltaMax, midY - deltaMax);
+        Vertex v1 = new Vertex(-1, midX - 2 * deltaMax, midY - deltaMax);
+        Vertex v2 = new Vertex(-1, midX, midY + 2 * deltaMax);
+        Vertex v3 = new Vertex(-1, midX + 2 * deltaMax, midY - deltaMax);
 
         vertices.add(v1);
         vertices.add(v2);
@@ -366,7 +372,7 @@ public class Dungeon {
     /**
      * Renders the delaunay triangles.
      */
-    public void renderTriangles() {
+    public void renderDelaunayTriangles() {
         for (int i = 0; i < triangles.size(); i++) {
             Triangle triangle = triangles.get(i);
             group.getChildren().add(triangle.getFirstEdge().getLine());
@@ -379,11 +385,136 @@ public class Dungeon {
      * Builds a minimum spanning tree by using Prim's algorithm.
      */
     public void buildMinimumSpanningTree() {
+        int graph[][] = createAdjacencyMatrix();
+        int parent[] = new int[roomCount];
+        int key[] = new int[roomCount];
+        boolean mstSet[] = new boolean[roomCount];
 
+        for (int i = 0; i < roomCount; i++) {
+            key[i] = Integer.MAX_VALUE;
+            mstSet[i] = false;
+        }
+
+        key[0] = 0;
+        parent[0] = -1;
+
+        for (int count = 0; count < roomCount; count++) {
+            int u = minKey(key, mstSet);
+            mstSet[u] = true;
+
+            for (int v = 0; v < roomCount; v++) {
+                if (graph[u][v] != 0 && !mstSet[v] && graph[u][v] < key[v]) {
+                    parent[v] = u;
+                    key[v] = graph[u][v];
+                }
+            }
+        }
+        for (int i = 0; i < mstSet.length; i++) {
+            System.out.print(parent[i] + "\t");
+        }
+
+        ArrayList<Edge> mstEdges = createMSTEdges(parent);
+        for (Edge edge : mstEdges) {
+            group.getChildren().add(edge.getLine());
+        }
     }
 
-    private void createGraphFromDelaunayTriangles() {
-        Graph graph = new Graph(roomCount);
+    public ArrayList<Edge> createMSTEdges(int parent[]) {
+        ArrayList<Edge> edges = new ArrayList<>();
+
+        for (int i = parent.length - 1; i > 0; i--) {
+            int firstVertexId = roomIds[i];
+            int secondVertexId = roomIds[parent[i]];
+            Cell firstCell = null;
+            Cell secondCell = null;
+            for (Cell cell : rooms) {
+                if (cell.getId() == firstVertexId) {
+                    firstCell = cell;
+                }
+                if (cell.getId() == secondVertexId) {
+                    secondCell = cell;
+                }
+            }
+            Tuple<Integer, Integer> firstCellCenter = firstCell.getCellCenter();
+            Tuple<Integer, Integer> secondCellCenter = secondCell.getCellCenter();
+            Edge edge = new Edge(new Vertex(firstVertexId, firstCellCenter.x, firstCellCenter.y), new Vertex(secondVertexId, secondCellCenter.x, secondCellCenter.y));
+            edges.add(edge);
+        }
+
+        return edges;
+    }
+
+    private int[] getRoomIds() {
+        int[] roomIds = new int[roomCount];
+
+        for (int i = 0; i < roomCount; i++) {
+            Cell cell = rooms.get(i);
+            if (cell.isRoom()) {
+                roomIds[i] = cell.getId();
+            }
+        }
+
+        return roomIds;
+    }
+
+    private int minKey(int key[], boolean mstSet[]) {
+        int min = Integer.MAX_VALUE;
+        int minIndex = -1;
+
+        for (int v = 0; v < roomCount; v++) {
+            if (mstSet[v] == false && key[v] < min) {
+                min = key[v];
+                minIndex = v;
+            }
+        }
+
+        return minIndex;
+    }
+
+    private int[][] createAdjacencyMatrix() {
+        int graph[][] = new int[roomCount][roomCount];
+        for (int i = 0; i < roomCount; i++) {
+            for (int j = 0; i < roomCount; i++) {
+                graph[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < roomIds.length; i++) {
+            System.out.print(roomIds[i] + "\t");
+        }
+        System.out.println();
+
+        for (Triangle triangle : triangles) {
+            Edge firstEdge = triangle.getFirstEdge();
+            Edge secondEdge = triangle.getSecondEdge();
+            Edge thirdEdge = triangle.getThirdEdge();
+
+            addTwoNodesToAdjacencyMatrix(graph, firstEdge);
+            addTwoNodesToAdjacencyMatrix(graph, secondEdge);
+            addTwoNodesToAdjacencyMatrix(graph, thirdEdge);
+        }
+
+        return graph;
+    }
+
+    private void addTwoNodesToAdjacencyMatrix(int graph[][], Edge edge) {
+        int u = 0;
+        for (int i = 0; i < roomIds.length; i++) {
+            if (edge.getFirstVertex().getCellId() == roomIds[i]) {
+                u = i;
+                break;
+            }
+        }
+        int v = 0;
+        for (int i = 0; i < roomIds.length; i++) {
+            if (edge.getSecondVertex().getCellId() == roomIds[i]) {
+                v = i;
+                break;
+            }
+        }
+
+        graph[u][v] = (int) edge.getWeight();
+        graph[v][u] = (int) edge.getWeight();
     }
 
     /**

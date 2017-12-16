@@ -12,9 +12,9 @@ public class VertexTest extends TestHelper {
      */
     @Test
     public void testIsSame() {
-        Vertex vertex = new Vertex(0, 1);
-        Vertex vertex2 = new Vertex(1, 0);
-        Vertex vertex3 = new Vertex(1, 0);
+        Vertex vertex = new Vertex(-1, 0, 1);
+        Vertex vertex2 = new Vertex(-1, 1, 0);
+        Vertex vertex3 = new Vertex(-1, 1, 0);
 
         assertFalse("The vertices are not the same", vertex.isSame(vertex2));
         assertFalse("The vertices are not the same", vertex.isSame(vertex3));
