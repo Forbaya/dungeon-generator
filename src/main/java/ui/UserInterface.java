@@ -20,7 +20,7 @@ public class UserInterface {
         Group group = new Group();
         group.getChildren().add(createGrid());
         Circle circle = createCircle();
-        group.getChildren().add(circle);
+        //group.getChildren().add(circle);
 
         long beginTime = System.currentTimeMillis();
         dungeon = new Dungeon(group, Constants.CELL_COUNT);
@@ -59,16 +59,16 @@ public class UserInterface {
     public Group createGrid() {
         Group group = new Group();
 
-        for (int i = 0; i < Constants.SCREEN_WIDTH; i += Constants.TILE_SIZE) {
-            Line verticalLine = new Line(i, 0, i, Constants.SCREEN_HEIGHT);
+        for (int i = 0; i < 1920; i += Constants.TILE_SIZE) {
+            Line verticalLine = new Line(i, 0, i, 1080);
             verticalLine.setStrokeType(StrokeType.CENTERED);
             verticalLine.setStroke(Color.web("pink", 0.2));
             verticalLine.setStrokeWidth(1);
             group.getChildren().add(verticalLine);
         }
 
-        for (int i = 0; i < Constants.SCREEN_HEIGHT; i += Constants.TILE_SIZE) {
-            Line horizontalLine = new Line(0, i, Constants.SCREEN_WIDTH, i);
+        for (int i = 0; i < 1080; i += Constants.TILE_SIZE) {
+            Line horizontalLine = new Line(0, i, 1920, i);
             horizontalLine.setStrokeType(StrokeType.CENTERED);
             horizontalLine.setStroke(Color.web("pink", 0.2));
             horizontalLine.setStrokeWidth(1);

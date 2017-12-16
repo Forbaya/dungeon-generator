@@ -41,4 +41,19 @@ public class Utils {
 
         return aBottom - bTop > 1 && aTop - bBottom < -1 && aRight - bLeft > 1 && aLeft - bRight < -1;
     }
+
+    public static boolean checkNextToEachOther(Rectangle a, Rectangle b) {
+        double aLeft = a.getX();
+        double aRight = aLeft + a.getWidth();
+        double aTop = a.getY();
+        double aBottom = aTop + a.getHeight();
+
+        double bLeft = b.getX();
+        double bRight = bLeft + b.getWidth();
+        double bTop = b.getY();
+        double bBottom = bTop + b.getHeight();
+
+        return (aRight == bLeft && aBottom > bTop && aTop < bBottom) || (aLeft == bRight && aBottom > bTop && aTop < bBottom) ||
+                (aBottom == bTop && bRight > aLeft && bLeft < aRight) || (aTop == bBottom && bRight > aLeft && bLeft < aRight);
+    }
 }

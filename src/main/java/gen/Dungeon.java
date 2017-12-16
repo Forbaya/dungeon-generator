@@ -21,6 +21,10 @@ public class Dungeon {
     private Random random;
     private ArrayList<Triangle> triangles;
     private int roomIds[];
+    private ArrayList<Edge> mstEdges;
+    private ArrayList<EdgeWithCells> mstEdgesWithCells;
+    private ArrayList<Corridor> corridors;
+
 
     public Dungeon(Group group, int cellCount) {
         this.group = group;
@@ -29,6 +33,45 @@ public class Dungeon {
         rooms = new ArrayList<>();
         random = new Random();
         triangles = new ArrayList<>();
+        mstEdgesWithCells = new ArrayList<>();
+        corridors = new ArrayList<>();
+    }
+
+    /**
+     * Gets the axis that a cell is moved in. The cell is moved in the axis that has a smaller collision distance.
+     * If the x-axis collision distance is same as the y-axis collision distance, the axis is randomed.
+     *
+     * @param xCollisionDistance the x-axis collision distance
+     * @param yCollisionDistance the y-axis collision distance
+     * @return the axis
+     */
+    private Constants.Axis getAxis(int xCollisionDistance, int yCollisionDistance) {
+        if (xCollisionDistance == yCollisionDistance) {
+            return random.nextFloat() > 0.5 ? Constants.Axis.X_AXIS : Constants.Axis.Y_AXIS;
+        }
+        return xCollisionDistance < yCollisionDistance ? Constants.Axis.X_AXIS : Constants.Axis.Y_AXIS;
+    }
+
+    /**
+     * Gets all the cells.
+     *
+     * @return the cells
+     */
+    public ArrayList<Cell> getCells() {
+        return cells;
+    }
+
+    private int[] getRoomIds() {
+        int[] roomIds = new int[roomCount];
+
+        for (int i = 0; i < roomCount; i++) {
+            Cell cell = rooms.get(i);
+            if (cell.isRoom()) {
+                roomIds[i] = cell.getId();
+            }
+        }
+
+        return roomIds;
     }
 
     /**
@@ -41,6 +84,7 @@ public class Dungeon {
         separateAllCollidingCells();
         delaunayTriangulate();
         buildMinimumSpanningTree();
+        buildLShapedCorridors();
     }
 
     /**
@@ -60,8 +104,8 @@ public class Dungeon {
             cells.add(newCell);
             if (newCell.isRoom()) {
                 rooms.add(newCell);
+                group.getChildren().add(newCell.getRectangle());
             }
-            group.getChildren().add(newCell.getRectangle());
         }
         roomCount = rooms.size();
         roomIds = getRoomIds();
@@ -83,7 +127,7 @@ public class Dungeon {
      * @param secondCell the second cell
      * @throws Exception an Exception
      */
-    private void addCollisions(Cell firstCell, Cell secondCell) throws Exception {
+    private void addCollisions(Cell firstCell, Cell secondCell) {
         firstCell.addCollidingCell(secondCell);
         secondCell.addCollidingCell(firstCell);
     }
@@ -133,21 +177,6 @@ public class Dungeon {
         int amountToMove = axis == Constants.Axis.X_AXIS ? xCollisionDistance : yCollisionDistance;
         secondCell.move(axis, amountToMove * direction);
         updateCellCollisions(secondCell);
-    }
-
-    /**
-     * Gets the axis that a cell is moved in. The cell is moved in the axis that has a smaller collision distance.
-     * If the x-axis collision distance is same as the y-axis collision distance, the axis is randomed.
-     *
-     * @param xCollisionDistance the x-axis collision distance
-     * @param yCollisionDistance the y-axis collision distance
-     * @return the axis
-     */
-    private Constants.Axis getAxis(int xCollisionDistance, int yCollisionDistance) {
-        if (xCollisionDistance == yCollisionDistance) {
-            return random.nextFloat() > 0.5 ? Constants.Axis.X_AXIS : Constants.Axis.Y_AXIS;
-        }
-        return xCollisionDistance < yCollisionDistance ? Constants.Axis.X_AXIS : Constants.Axis.Y_AXIS;
     }
 
     /**
@@ -409,68 +438,16 @@ public class Dungeon {
                 }
             }
         }
-        for (int i = 0; i < mstSet.length; i++) {
-            System.out.print(parent[i] + "\t");
-        }
 
-        ArrayList<Edge> mstEdges = createMSTEdges(parent);
-        for (Edge edge : mstEdges) {
-            group.getChildren().add(edge.getLine());
-        }
+        mstEdges = createMSTEdges(parent);
+        renderMSTEdges();
     }
 
-    public ArrayList<Edge> createMSTEdges(int parent[]) {
-        ArrayList<Edge> edges = new ArrayList<>();
-
-        for (int i = parent.length - 1; i > 0; i--) {
-            int firstVertexId = roomIds[i];
-            int secondVertexId = roomIds[parent[i]];
-            Cell firstCell = null;
-            Cell secondCell = null;
-            for (Cell cell : rooms) {
-                if (cell.getId() == firstVertexId) {
-                    firstCell = cell;
-                }
-                if (cell.getId() == secondVertexId) {
-                    secondCell = cell;
-                }
-            }
-            Tuple<Integer, Integer> firstCellCenter = firstCell.getCellCenter();
-            Tuple<Integer, Integer> secondCellCenter = secondCell.getCellCenter();
-            Edge edge = new Edge(new Vertex(firstVertexId, firstCellCenter.x, firstCellCenter.y), new Vertex(secondVertexId, secondCellCenter.x, secondCellCenter.y));
-            edges.add(edge);
-        }
-
-        return edges;
-    }
-
-    private int[] getRoomIds() {
-        int[] roomIds = new int[roomCount];
-
-        for (int i = 0; i < roomCount; i++) {
-            Cell cell = rooms.get(i);
-            if (cell.isRoom()) {
-                roomIds[i] = cell.getId();
-            }
-        }
-
-        return roomIds;
-    }
-
-    private int minKey(int key[], boolean mstSet[]) {
-        int min = Integer.MAX_VALUE;
-        int minIndex = -1;
-
-        for (int v = 0; v < roomCount; v++) {
-            if (mstSet[v] == false && key[v] < min) {
-                min = key[v];
-                minIndex = v;
-            }
-        }
-
-        return minIndex;
-    }
-
+    /**
+     * Creates the adjacency matrix used by Prim's algorithm. Only the cells that are rooms have edges.
+     *
+     * @return the adjacency matrix as a two dimensional array
+     */
     private int[][] createAdjacencyMatrix() {
         int graph[][] = new int[roomCount][roomCount];
         for (int i = 0; i < roomCount; i++) {
@@ -478,11 +455,6 @@ public class Dungeon {
                 graph[i][j] = 0;
             }
         }
-
-        for (int i = 0; i < roomIds.length; i++) {
-            System.out.print(roomIds[i] + "\t");
-        }
-        System.out.println();
 
         for (Triangle triangle : triangles) {
             Edge firstEdge = triangle.getFirstEdge();
@@ -497,6 +469,35 @@ public class Dungeon {
         return graph;
     }
 
+    /**
+     * Gets the minimum key of a node that isn't part of the MST.
+     *
+     * @param key    the keys
+     * @param mstSet the set of nodes that are part of the MST
+     * @return the minimum key
+     */
+    private int minKey(int key[], boolean mstSet[]) {
+        int min = Integer.MAX_VALUE;
+        int minIndex = -1;
+
+        for (int v = 0; v < roomCount; v++) {
+            if (mstSet[v] == false && key[v] < min) {
+                min = key[v];
+                minIndex = v;
+            }
+        }
+
+        return minIndex;
+    }
+
+    /**
+     * Adds two nodes to the adjacency matrix. There are more cells than rooms, which means room id's
+     * cannot be used as adjacency matrix indices. I didn't want to create a Map data structure which
+     * is why the roomIds is used. It does hurt the time complexity though.
+     *
+     * @param graph the graph as an adjacency matrix
+     * @param edge  the edge containing the nodes
+     */
     private void addTwoNodesToAdjacencyMatrix(int graph[][], Edge edge) {
         int u = 0;
         for (int i = 0; i < roomIds.length; i++) {
@@ -518,11 +519,63 @@ public class Dungeon {
     }
 
     /**
-     * Gets all the cells.
+     * Creates MST edges from the parent array made by Prim's algorithm. The roomIds array is used again to map the
+     * indices back to the rooms.
      *
-     * @return the cells
+     * @param parent the parent array
+     * @return ArrayList of containing MST Edges
      */
-    public ArrayList<Cell> getCells() {
-        return cells;
+    public ArrayList<Edge> createMSTEdges(int parent[]) {
+        ArrayList<Edge> edges = new ArrayList<>();
+
+        for (int i = parent.length - 1; i > 0; i--) {
+            int firstVertexId = roomIds[i];
+            int secondVertexId = roomIds[parent[i]];
+            Cell firstCell = null;
+            Cell secondCell = null;
+            for (Cell cell : rooms) {
+                if (cell.getId() == firstVertexId) {
+                    firstCell = cell;
+                }
+                if (cell.getId() == secondVertexId) {
+                    secondCell = cell;
+                }
+            }
+            Tuple<Integer, Integer> firstCellCenter = firstCell.getCellCenter();
+            Tuple<Integer, Integer> secondCellCenter = secondCell.getCellCenter();
+            Edge edge = new Edge(new Vertex(firstVertexId, firstCellCenter.x, firstCellCenter.y), new Vertex(secondVertexId, secondCellCenter.x, secondCellCenter.y));
+            edges.add(edge);
+            mstEdgesWithCells.add(new EdgeWithCells(edge, firstCell, secondCell));
+        }
+
+        return edges;
+    }
+
+    /**
+     * Renders the MST edges.
+     */
+    private void renderMSTEdges() {
+        for (Edge edge : mstEdges) {
+            group.getChildren().add(edge.getLine());
+        }
+    }
+
+    public void buildLShapedCorridors() {
+        for (EdgeWithCells edgeWithCells : mstEdgesWithCells) {
+            Cell firstCell = edgeWithCells.getFirstCell();
+            Cell secondCell = edgeWithCells.getSecondCell();
+            if (!Utils.checkNextToEachOther(firstCell.getRectangle(), secondCell.getRectangle())) {
+                continue;
+            }
+
+            Tuple<Integer, Integer> firstCellCenter = firstCell.getCellCenter();
+            Tuple<Integer, Integer> secondCellCenter = secondCell.getCellCenter();
+            // First index is top/bottom (-1 is top, 1 is bottom), second index is left/right (-1 is left, 1 is right)
+            int[] directions = new int[2];
+            directions[0] = firstCellCenter.x < secondCellCenter.x ? 1 : -1;
+            directions[1] = firstCellCenter.y < secondCellCenter.y ? 1 : -1;
+
+            
+        }
     }
 }
