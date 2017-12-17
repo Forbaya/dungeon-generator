@@ -79,6 +79,14 @@ public class Cell implements Comparable<Cell> {
         this.rectangle.setStrokeWidth(1);
     }
 
+    public void setColorToRed() {
+        this.rectangle.setFill(Color.RED);
+    }
+
+    public void setColorToBlue() {
+        this.rectangle.setFill(Color.BLUE);
+    }
+
     /**
      * Creates to tuple that contains the center of the cell. Also creates a double variable for distance from the
      * center of the circle. These are used for separating cells from each other.

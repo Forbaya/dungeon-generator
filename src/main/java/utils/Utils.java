@@ -42,7 +42,7 @@ public class Utils {
         return aBottom - bTop > 1 && aTop - bBottom < -1 && aRight - bLeft > 1 && aLeft - bRight < -1;
     }
 
-    public static boolean checkNextToEachOther(Rectangle a, Rectangle b) {
+    public static boolean areNextToEachOther(Rectangle a, Rectangle b) {
         double aLeft = a.getX();
         double aRight = aLeft + a.getWidth();
         double aTop = a.getY();

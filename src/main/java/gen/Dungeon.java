@@ -76,24 +76,27 @@ public class Dungeon {
 
     /**
      * This starts the dungeon generation.
-     *
-     * @throws Exception an exception
      */
-    public void generateDungeon() throws Exception {
+    public void generateDungeon() {
         generateCells();
         separateAllCollidingCells();
         delaunayTriangulate();
         buildMinimumSpanningTree();
         buildLShapedCorridors();
+        renderRooms();
+    }
+
+    private void renderRooms() {
+        for (Cell room : rooms) {
+            group.getChildren().add(room.getRectangle());
+        }
     }
 
     /**
      * Generates the cells. When a cell is generated and it collides with pre-existing cell, they are added
      * to each other as a colliding cell.
-     *
-     * @throws Exception an Exception
      */
-    private void generateCells() throws Exception {
+    private void generateCells() {
         for (int i = 0; i < cellCount; i++) {
             Cell newCell = new Cell(i);
             for (Cell oldCell : cells) {
@@ -104,7 +107,7 @@ public class Dungeon {
             cells.add(newCell);
             if (newCell.isRoom()) {
                 rooms.add(newCell);
-                group.getChildren().add(newCell.getRectangle());
+//                group.getChildren().add(newCell.getRectangle());
             }
         }
         roomCount = rooms.size();
@@ -125,7 +128,6 @@ public class Dungeon {
      *
      * @param firstCell  the first cell
      * @param secondCell the second cell
-     * @throws Exception an Exception
      */
     private void addCollisions(Cell firstCell, Cell secondCell) {
         firstCell.addCollidingCell(secondCell);
@@ -135,8 +137,6 @@ public class Dungeon {
     /**
      * When cells are generated, some of them are likely to be on top of each other. This method separates them
      * from each other.
-     *
-     * @throws Exception an Exception
      */
     private void separateAllCollidingCells() {
         while (cellsHaveCollisions()) {
@@ -219,7 +219,7 @@ public class Dungeon {
     /**
      * Implementation of the Bowyer-Watson algorithm.
      */
-    public void delaunayTriangulate() {
+    private void delaunayTriangulate() {
         ArrayList<Vertex> vertices = getCellCenters();
         Triangle superTriangle = createSuperTriangle(vertices);
         triangles.add(superTriangle);
@@ -298,7 +298,7 @@ public class Dungeon {
      * @param vertex a point
      * @return a list of bad triangles
      */
-    public ArrayList<Triangle> findBadTriangles(Vertex vertex) {
+    private ArrayList<Triangle> findBadTriangles(Vertex vertex) {
         ArrayList<Triangle> badTriangles = new ArrayList<>();
 
         for (int i = 0; i < triangles.size(); i++) {
@@ -317,7 +317,7 @@ public class Dungeon {
      * @param badTriangles the bad triangles
      * @return the boundary of the polygonal hole
      */
-    public ArrayList<Edge> findBoundaryOfThePolygonalHole(ArrayList<Triangle> badTriangles) {
+    private ArrayList<Edge> findBoundaryOfThePolygonalHole(ArrayList<Triangle> badTriangles) {
         ArrayList<Edge> polygonBoundary = new ArrayList<>();
 
         for (int i = 0; i < badTriangles.size(); i++) {
@@ -413,7 +413,7 @@ public class Dungeon {
     /**
      * Builds a minimum spanning tree by using Prim's algorithm.
      */
-    public void buildMinimumSpanningTree() {
+    private void buildMinimumSpanningTree() {
         int graph[][] = createAdjacencyMatrix();
         int parent[] = new int[roomCount];
         int key[] = new int[roomCount];
@@ -481,7 +481,7 @@ public class Dungeon {
         int minIndex = -1;
 
         for (int v = 0; v < roomCount; v++) {
-            if (mstSet[v] == false && key[v] < min) {
+            if (!mstSet[v] && key[v] < min) {
                 min = key[v];
                 minIndex = v;
             }
@@ -525,7 +525,7 @@ public class Dungeon {
      * @param parent the parent array
      * @return ArrayList of containing MST Edges
      */
-    public ArrayList<Edge> createMSTEdges(int parent[]) {
+    private ArrayList<Edge> createMSTEdges(int parent[]) {
         ArrayList<Edge> edges = new ArrayList<>();
 
         for (int i = parent.length - 1; i > 0; i--) {
@@ -564,7 +564,7 @@ public class Dungeon {
         for (EdgeWithCells edgeWithCells : mstEdgesWithCells) {
             Cell firstCell = edgeWithCells.getFirstCell();
             Cell secondCell = edgeWithCells.getSecondCell();
-            if (!Utils.checkNextToEachOther(firstCell.getRectangle(), secondCell.getRectangle())) {
+            if (Utils.areNextToEachOther(firstCell.getRectangle(), secondCell.getRectangle())) {
                 continue;
             }
 
@@ -572,10 +572,73 @@ public class Dungeon {
             Tuple<Integer, Integer> secondCellCenter = secondCell.getCellCenter();
             // First index is top/bottom (-1 is top, 1 is bottom), second index is left/right (-1 is left, 1 is right)
             int[] directions = new int[2];
-            directions[0] = firstCellCenter.x < secondCellCenter.x ? 1 : -1;
-            directions[1] = firstCellCenter.y < secondCellCenter.y ? 1 : -1;
+            directions[0] = firstCellCenter.y < secondCellCenter.y ? 1 : -1;
+            directions[1] = firstCellCenter.x < secondCellCenter.x ? 1 : -1;
+            int firstDirection = random.nextInt(2);
 
-            
+//            if (firstDirection == 0) {
+                if (directions[0] == 1) {
+                    int firstCorridorStartX = Utils.snapIntoGrid(firstCellCenter.x + Constants.CIRCLE_CENTER_X);
+                    int firstCorridorStartY = (int) firstCell.getRectangle().getY() + (int) firstCell.getRectangle().getHeight();
+                    int firstCorridorEndX = firstCorridorStartX + Constants.TILE_SIZE - 1;
+                    int firstCorridorEndY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
+                    Corridor firstCorridor = new Corridor(firstCorridorStartX, firstCorridorStartY, firstCorridorEndX - firstCorridorStartX, firstCorridorEndY - firstCorridorStartY);
+                    firstCell.setColorToBlue();
+                    secondCell.setColorToBlue();
+                    corridors.add(firstCorridor);
+                    group.getChildren().add(firstCorridor.getRectangle());
+                    if (!Utils.areNextToEachOther(firstCorridor.getRectangle(), secondCell.getRectangle())) {
+                        if (directions[1] == 1) {
+                            int secondCorridorStartX = firstCorridorEndX;
+                            int secondCorridorStartY = firstCorridorEndY - Constants.TILE_SIZE;
+                            int secondCorridorEndX = (int) secondCell.getRectangle().getX();
+                            int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE;
+                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+                            corridors.add(secondCorridor);
+                            group.getChildren().add(secondCorridor.getRectangle());
+                        } else {
+                            int secondCorridorStartX = (int) secondCell.getRectangle().getX() + (int) secondCell.getRectangle().getWidth();
+                            int secondCorridorStartY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
+                            int secondCorridorEndX = firstCorridorEndX;
+                            int secondCorridorEndY = firstCorridorEndY + Constants.TILE_SIZE - 1;
+                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+                            corridors.add(secondCorridor);
+                            group.getChildren().add(secondCorridor.getRectangle());
+                        }
+                    }
+                } else {
+                    int firstCorridorStartX = Utils.snapIntoGrid(firstCellCenter.x + Constants.CIRCLE_CENTER_X);
+                    int firstCorridorStartY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
+                    int firstCorridorWidth = Constants.TILE_SIZE;
+                    int firstCorridorHeight = (int) firstCell.getRectangle().getY() - firstCorridorStartY;
+                    Corridor firstCorridor = new Corridor(firstCorridorStartX, firstCorridorStartY, firstCorridorWidth, firstCorridorHeight);
+                    firstCell.setColorToRed();
+                    secondCell.setColorToRed();
+                    corridors.add(firstCorridor);
+                    group.getChildren().add(firstCorridor.getRectangle());
+                    if (!Utils.areNextToEachOther(firstCorridor.getRectangle(), secondCell.getRectangle())) {
+                        if (directions[1] == 1) {
+                            int secondCorridorStartX = firstCorridorStartX + firstCorridorWidth;
+                            int secondCorridorStartY = firstCorridorStartY;
+                            int secondCorridorEndX = (int) secondCell.getRectangle().getX();
+                            int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
+                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+                            corridors.add(secondCorridor);
+                            group.getChildren().add(secondCorridor.getRectangle());
+                        } else {
+                            int secondCorridorStartX = (int) secondCell.getRectangle().getX() + (int) secondCell.getRectangle().getWidth();
+                            int secondCorridorStartY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
+                            int secondCorridorEndX = firstCorridorStartX + firstCorridorWidth;
+                            int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
+                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+                            corridors.add(secondCorridor);
+                            group.getChildren().add(secondCorridor.getRectangle());
+                        }
+                    }
+                }
+//            } else {
+//                // Do I have to...?
+//            }
         }
     }
 }
