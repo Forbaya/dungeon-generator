@@ -79,12 +79,9 @@ public class Cell implements Comparable<Cell> {
         this.rectangle.setStrokeWidth(1);
     }
 
-    public void setColorToRed() {
-        this.rectangle.setFill(Color.RED);
-    }
-
-    public void setColorToBlue() {
-        this.rectangle.setFill(Color.BLUE);
+    public void setColorToWhite() {
+        this.rectangle.setFill(Color.WHITE);
+        this.rectangle.setStroke(Color.web("white", 1.0));
     }
 
     /**

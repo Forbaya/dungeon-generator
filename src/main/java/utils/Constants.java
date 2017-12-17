@@ -4,7 +4,7 @@ package utils;
  * Constants for all classes to use.
  */
 public class Constants {
-    public static int CELL_COUNT = 30;
+    public static int CELL_COUNT = 50;
     public static int TILE_SIZE = 16;
     public static int SCREEN_WIDTH = 1920;
     public static int SCREEN_HEIGHT = SCREEN_WIDTH / 16 * 9;
@@ -17,5 +17,9 @@ public class Constants {
 
     public enum Axis {
         X_AXIS, Y_AXIS
+    }
+
+    public enum Direction {
+        UP, DOWN, LEFT, RIGHT
     }
 }

@@ -17,7 +17,7 @@ public class DungeonTest extends TestHelper {
     private Group group;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         group = new Group();
     }
 
@@ -25,7 +25,7 @@ public class DungeonTest extends TestHelper {
      * Tests whether dungeon has the correct amount of cells.
      */
     @Test
-    public void testDungeonCellCount() throws Exception {
+    public void testDungeonCellCount() {
         int cellCount = 10;
         Dungeon dungeon = new Dungeon(group, cellCount);
         dungeon.generateDungeon();

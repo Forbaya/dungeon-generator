@@ -82,7 +82,8 @@ public class Dungeon {
         separateAllCollidingCells();
         delaunayTriangulate();
         buildMinimumSpanningTree();
-        buildLShapedCorridors();
+        createShapedCorridors();
+
         renderRooms();
     }
 
@@ -107,7 +108,6 @@ public class Dungeon {
             cells.add(newCell);
             if (newCell.isRoom()) {
                 rooms.add(newCell);
-//                group.getChildren().add(newCell.getRectangle());
             }
         }
         roomCount = rooms.size();
@@ -440,7 +440,7 @@ public class Dungeon {
         }
 
         mstEdges = createMSTEdges(parent);
-        renderMSTEdges();
+        //renderMSTEdges();
     }
 
     /**
@@ -560,7 +560,10 @@ public class Dungeon {
         }
     }
 
-    public void buildLShapedCorridors() {
+    /**
+     * Creates the L-shaped corridors between the rooms.
+     */
+    public void createShapedCorridors() {
         for (EdgeWithCells edgeWithCells : mstEdgesWithCells) {
             Cell firstCell = edgeWithCells.getFirstCell();
             Cell secondCell = edgeWithCells.getSecondCell();
@@ -570,75 +573,140 @@ public class Dungeon {
 
             Tuple<Integer, Integer> firstCellCenter = firstCell.getCellCenter();
             Tuple<Integer, Integer> secondCellCenter = secondCell.getCellCenter();
-            // First index is top/bottom (-1 is top, 1 is bottom), second index is left/right (-1 is left, 1 is right)
-            int[] directions = new int[2];
-            directions[0] = firstCellCenter.y < secondCellCenter.y ? 1 : -1;
-            directions[1] = firstCellCenter.x < secondCellCenter.x ? 1 : -1;
-            int firstDirection = random.nextInt(2);
+            Constants.Direction[] directions = new Constants.Direction[2];
+            directions[0] = firstCellCenter.y < secondCellCenter.y ? Constants.Direction.DOWN : Constants.Direction.UP;
+            directions[1] = firstCellCenter.x < secondCellCenter.x ? Constants.Direction.RIGHT : Constants.Direction.LEFT;
 
-//            if (firstDirection == 0) {
-                if (directions[0] == 1) {
-                    int firstCorridorStartX = Utils.snapIntoGrid(firstCellCenter.x + Constants.CIRCLE_CENTER_X);
-                    int firstCorridorStartY = (int) firstCell.getRectangle().getY() + (int) firstCell.getRectangle().getHeight();
-                    int firstCorridorEndX = firstCorridorStartX + Constants.TILE_SIZE - 1;
-                    int firstCorridorEndY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
-                    Corridor firstCorridor = new Corridor(firstCorridorStartX, firstCorridorStartY, firstCorridorEndX - firstCorridorStartX, firstCorridorEndY - firstCorridorStartY);
-                    firstCell.setColorToBlue();
-                    secondCell.setColorToBlue();
-                    corridors.add(firstCorridor);
-                    group.getChildren().add(firstCorridor.getRectangle());
-                    if (!Utils.areNextToEachOther(firstCorridor.getRectangle(), secondCell.getRectangle())) {
-                        if (directions[1] == 1) {
-                            int secondCorridorStartX = firstCorridorEndX;
-                            int secondCorridorStartY = firstCorridorEndY - Constants.TILE_SIZE;
-                            int secondCorridorEndX = (int) secondCell.getRectangle().getX();
-                            int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE;
-                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
-                            corridors.add(secondCorridor);
-                            group.getChildren().add(secondCorridor.getRectangle());
-                        } else {
-                            int secondCorridorStartX = (int) secondCell.getRectangle().getX() + (int) secondCell.getRectangle().getWidth();
-                            int secondCorridorStartY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
-                            int secondCorridorEndX = firstCorridorEndX;
-                            int secondCorridorEndY = firstCorridorEndY + Constants.TILE_SIZE - 1;
-                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
-                            corridors.add(secondCorridor);
-                            group.getChildren().add(secondCorridor.getRectangle());
-                        }
-                    }
-                } else {
-                    int firstCorridorStartX = Utils.snapIntoGrid(firstCellCenter.x + Constants.CIRCLE_CENTER_X);
-                    int firstCorridorStartY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
-                    int firstCorridorWidth = Constants.TILE_SIZE;
-                    int firstCorridorHeight = (int) firstCell.getRectangle().getY() - firstCorridorStartY;
-                    Corridor firstCorridor = new Corridor(firstCorridorStartX, firstCorridorStartY, firstCorridorWidth, firstCorridorHeight);
-                    firstCell.setColorToRed();
-                    secondCell.setColorToRed();
-                    corridors.add(firstCorridor);
-                    group.getChildren().add(firstCorridor.getRectangle());
-                    if (!Utils.areNextToEachOther(firstCorridor.getRectangle(), secondCell.getRectangle())) {
-                        if (directions[1] == 1) {
-                            int secondCorridorStartX = firstCorridorStartX + firstCorridorWidth;
-                            int secondCorridorStartY = firstCorridorStartY;
-                            int secondCorridorEndX = (int) secondCell.getRectangle().getX();
-                            int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
-                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
-                            corridors.add(secondCorridor);
-                            group.getChildren().add(secondCorridor.getRectangle());
-                        } else {
-                            int secondCorridorStartX = (int) secondCell.getRectangle().getX() + (int) secondCell.getRectangle().getWidth();
-                            int secondCorridorStartY = Utils.snapIntoGrid(secondCellCenter.y + Constants.CIRCLE_CENTER_Y);
-                            int secondCorridorEndX = firstCorridorStartX + firstCorridorWidth;
-                            int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
-                            Corridor secondCorridor = new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
-                            corridors.add(secondCorridor);
-                            group.getChildren().add(secondCorridor.getRectangle());
-                        }
+            if (directions[0] == Constants.Direction.DOWN) {
+                Corridor firstCorridor = createUpToDownCorridor(firstCell, secondCell);
+                corridors.add(firstCorridor);
+                group.getChildren().add(firstCorridor.getRectangle());
+                if (!Utils.areNextToEachOther(firstCorridor.getRectangle(), secondCell.getRectangle())) {
+                    if (directions[1] == Constants.Direction.RIGHT) {
+                        Corridor secondCorridor = createLeftToRightCorridorAfterUpToDown(secondCell, firstCorridor);
+                        corridors.add(secondCorridor);
+                        group.getChildren().add(secondCorridor.getRectangle());
+                    } else {
+                        Corridor secondCorridor = createRightToLeftCorridorAfterUpToDown(secondCell, firstCorridor);
+                        corridors.add(secondCorridor);
+                        group.getChildren().add(secondCorridor.getRectangle());
+
                     }
                 }
-//            } else {
-//                // Do I have to...?
-//            }
+            } else {
+                Corridor firstCorridor = createDownToUpCorridor(firstCell, secondCell);
+                corridors.add(firstCorridor);
+                group.getChildren().add(firstCorridor.getRectangle());
+
+                if (!Utils.areNextToEachOther(firstCorridor.getRectangle(), secondCell.getRectangle())) {
+                    if (directions[1] == Constants.Direction.RIGHT) {
+                        Corridor secondCorridor = createLeftToRightCorridorAfterDownToUp(secondCell, firstCorridor);
+                        corridors.add(secondCorridor);
+                        group.getChildren().add(secondCorridor.getRectangle());
+
+                    } else {
+                        Corridor secondCorridor = createRightToLeftCorridorAfterDownToUp(secondCell, firstCorridor);
+                        corridors.add(secondCorridor);
+                        group.getChildren().add(secondCorridor.getRectangle());
+                    }
+                }
+            }
         }
+    }
+
+    /**
+     * Creates a corridor going down from a room.
+     *
+     * @param firstCell  the first cell
+     * @param secondCell the second cell
+     * @return the created corridor
+     */
+    private Corridor createUpToDownCorridor(Cell firstCell, Cell secondCell) {
+        int firstCorridorStartX = Utils.snapIntoGrid(firstCell.getCellCenter().x + Constants.CIRCLE_CENTER_X);
+        int firstCorridorStartY = (int) firstCell.getRectangle().getY() + (int) firstCell.getRectangle().getHeight();
+        int firstCorridorEndX = firstCorridorStartX + Constants.TILE_SIZE - 1;
+        int firstCorridorEndY = Utils.snapIntoGrid(secondCell.getCellCenter().y + Constants.CIRCLE_CENTER_Y);
+
+        return new Corridor(firstCorridorStartX, firstCorridorStartY, firstCorridorEndX - firstCorridorStartX, firstCorridorEndY - firstCorridorStartY);
+    }
+
+    /**
+     * Creates a corridor going from left to right (towards the second cell) that continues a corridor going down from a room.
+     *
+     * @param secondCell    the second cell
+     * @param firstCorridor the first corridor
+     * @return the created corridor
+     */
+    private Corridor createLeftToRightCorridorAfterUpToDown(Cell secondCell, Corridor firstCorridor) {
+        int secondCorridorStartX = (int )firstCorridor.getRectangle().getX() + (int) firstCorridor.getRectangle().getWidth();
+        int secondCorridorStartY = (int) firstCorridor.getRectangle().getY() + (int) firstCorridor.getRectangle().getHeight() - Constants.TILE_SIZE;
+        int secondCorridorEndX = (int) secondCell.getRectangle().getX();
+        int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
+
+        return new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+    }
+
+    /**
+     * Creates a corridor going from right to left (towards the second cell) that continues a corridor going down from a room.
+     *
+     * @param secondCell    the second cell
+     * @param firstCorridor the first corridor
+     * @return the created corridor
+     */
+    private Corridor createRightToLeftCorridorAfterUpToDown(Cell secondCell, Corridor firstCorridor) {
+        int secondCorridorStartX = (int) secondCell.getRectangle().getX() + (int) secondCell.getRectangle().getWidth();
+        int secondCorridorStartY = Utils.snapIntoGrid(secondCell.getCellCenter().y + Constants.CIRCLE_CENTER_Y);
+        int secondCorridorEndX = (int )firstCorridor.getRectangle().getX() + (int) firstCorridor.getRectangle().getWidth();
+        int secondCorridorEndY = (int) firstCorridor.getRectangle().getY() + (int) firstCorridor.getRectangle().getHeight() + Constants.TILE_SIZE - 1;
+
+        return new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+    }
+
+    /**
+     * Creates a corridor going up from a room.
+     *
+     * @param firstCell  the first cell
+     * @param secondCell the second cell
+     * @return the created corridor
+     */
+    private Corridor createDownToUpCorridor(Cell firstCell, Cell secondCell) {
+        int firstCorridorStartX = Utils.snapIntoGrid(firstCell.getCellCenter().x + Constants.CIRCLE_CENTER_X);
+        int firstCorridorStartY = Utils.snapIntoGrid(secondCell.getCellCenter().y + Constants.CIRCLE_CENTER_Y);
+        int firstCorridorWidth = Constants.TILE_SIZE;
+        int firstCorridorHeight = (int) firstCell.getRectangle().getY() - firstCorridorStartY;
+
+        return new Corridor(firstCorridorStartX, firstCorridorStartY, firstCorridorWidth, firstCorridorHeight);
+    }
+
+    /**
+     * Creates a corridor going from left to right (towards the second cell) that continues a corridor going up from a room.
+     *
+     * @param secondCell    the second cell
+     * @param firstCorridor the first corridor
+     * @return the created corridor
+     */
+    private Corridor createLeftToRightCorridorAfterDownToUp(Cell secondCell, Corridor firstCorridor) {
+        int secondCorridorStartX = (int) firstCorridor.getRectangle().getX() + (int) firstCorridor.getRectangle().getWidth();
+        int secondCorridorStartY = (int) firstCorridor.getRectangle().getY();
+        int secondCorridorEndX = (int) secondCell.getRectangle().getX();
+        int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
+
+        return new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
+    }
+
+    /**
+     * Creates a corridor going from right to left (towards the second cell) that continues a corridor going up from a room.
+     *
+     * @param secondCell    the second cell
+     * @param firstCorridor the first corridor
+     * @return the created corridor
+     */
+    private Corridor createRightToLeftCorridorAfterDownToUp(Cell secondCell, Corridor firstCorridor) {
+        int secondCorridorStartX = (int) secondCell.getRectangle().getX() + (int) secondCell.getRectangle().getWidth();
+        int secondCorridorStartY = Utils.snapIntoGrid(secondCell.getCellCenter().y + Constants.CIRCLE_CENTER_Y);
+        int secondCorridorEndX = (int) firstCorridor.getRectangle().getX() + (int) firstCorridor.getRectangle().getWidth();
+        int secondCorridorEndY = secondCorridorStartY + Constants.TILE_SIZE - 1;
+
+        return new Corridor(secondCorridorStartX, secondCorridorStartY, secondCorridorEndX - secondCorridorStartX, secondCorridorEndY - secondCorridorStartY);
     }
 }
