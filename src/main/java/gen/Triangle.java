@@ -1,5 +1,8 @@
 package gen;
 
+/**
+ * The triangles that delaunay triangulation generates.
+ */
 public class Triangle {
     private Vertex firstVertex;
     private Vertex secondVertex;
@@ -17,23 +20,41 @@ public class Triangle {
         this.thirdEdge = new Edge(thirdVertex, firstVertex);
     }
 
+    /**
+     * Checks whether the triangle contains a given vertex.
+     *
+     * @param vertex the vertex
+     * @return true if the triangle contains the vertex, otherwise false
+     */
     public boolean containsVertex(Vertex vertex) {
         return firstVertex.isSame(vertex) || secondVertex.isSame(vertex) || thirdVertex.isSame(vertex);
     }
 
-    public boolean isSame(Triangle otherTriangle) {
+    /**
+     * Checks whether this triangle is same an another triangle.
+     *
+     * @param anotherTriangle another triangle
+     * @return true if this triangle is same as another triangle, otherwise false
+     */
+    public boolean isSame(Triangle anotherTriangle) {
         Vertex v1 = firstVertex;
         Vertex v2 = secondVertex;
         Vertex v3 = thirdVertex;
-        Vertex ov1 = otherTriangle.getFirstVertex();
-        Vertex ov2 = otherTriangle.getSecondVertex();
-        Vertex ov3 = otherTriangle.getThirdVertex();
+        Vertex ov1 = anotherTriangle.getFirstVertex();
+        Vertex ov2 = anotherTriangle.getSecondVertex();
+        Vertex ov3 = anotherTriangle.getThirdVertex();
 
         return (v1.isSame(ov1) || v1.isSame(ov2) || v1.isSame(ov3)) &&
                 (v2.isSame(ov1) || v2.isSame(ov2) || v2.isSame(ov3)) &&
                 (v3.isSame(ov1) || v3.isSame(ov2) || v3.isSame(ov3));
     }
 
+    /**
+     * Checks whether the circumcircle containing this triangles vertices contains a given vertex.
+     *
+     * @param vertex the given vertex
+     * @return true if the circumcircle contains the given vertex, otherwise false
+     */
     public boolean circumcircleContains(Vertex vertex) {
         int v1x = firstVertex.getX();
         int v2x = secondVertex.getX();
@@ -55,26 +76,56 @@ public class Triangle {
         return distance <= circumcircleRadius;
     }
 
+    /**
+     * Get the first vertex.
+     *
+     * @return the first vertex
+     */
     public Vertex getFirstVertex() {
         return firstVertex;
     }
 
+    /**
+     * Get the second vertex.
+     *
+     * @return the second vertex
+     */
     public Vertex getSecondVertex() {
         return secondVertex;
     }
 
+    /**
+     * Get the third vertex
+     *
+     * @return the third vertex
+     */
     public Vertex getThirdVertex() {
         return thirdVertex;
     }
 
+    /**
+     * Get the first edge.
+     *
+     * @return the first edge
+     */
     public Edge getFirstEdge() {
         return firstEdge;
     }
 
+    /**
+     * Get the second edge.
+     *
+     * @return the second edge
+     */
     public Edge getSecondEdge() {
         return secondEdge;
     }
 
+    /**
+     * Get the third edge.
+     *
+     * @return the third edge
+     */
     public Edge getThirdEdge() {
         return thirdEdge;
     }

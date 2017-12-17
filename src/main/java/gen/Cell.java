@@ -60,7 +60,7 @@ public class Cell implements Comparable<Cell> {
      * @param height the height
      */
     public void setRectangle(int x, int y, int width, int height) {
-        this.rectangle = new Rectangle(x, y, width, height);
+        rectangle = new Rectangle(x, y, width, height);
         updateCellCenterAndDistanceFromCircleCenter();
     }
 
@@ -68,20 +68,15 @@ public class Cell implements Comparable<Cell> {
      * Sets the rendering options for the rectangle.
      */
     private void setRectangleRendering() {
-        this.rectangle.setStrokeType(StrokeType.CENTERED);
+        rectangle.setStrokeType(StrokeType.CENTERED);
         if (isRoom) {
-            this.rectangle.setFill(Color.GREEN);
-            this.rectangle.setStroke(Color.web("black", 1.0));
+            rectangle.setFill(Color.GREEN);
+            rectangle.setStroke(Color.web("black", 1.0));
         } else {
-            this.rectangle.setFill(Color.WHITE);
-            this.rectangle.setStroke(Color.web("black", 1.0));
+            rectangle.setFill(Color.WHITE);
+            rectangle.setStroke(Color.web("black", 1.0));
         }
-        this.rectangle.setStrokeWidth(1);
-    }
-
-    public void setColorToWhite() {
-        this.rectangle.setFill(Color.WHITE);
-        this.rectangle.setStroke(Color.web("white", 1.0));
+        rectangle.setStrokeWidth(1);
     }
 
     /**

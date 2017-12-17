@@ -61,6 +61,11 @@ public class Dungeon {
         return cells;
     }
 
+    /**
+     * Get the room ids as an array.
+     *
+     * @return the room ids
+     */
     private int[] getRoomIds() {
         int[] roomIds = new int[roomCount];
 
@@ -87,6 +92,9 @@ public class Dungeon {
         renderRooms();
     }
 
+    /**
+     * Render the cells that are rooms.
+     */
     private void renderRooms() {
         for (Cell room : rooms) {
             group.getChildren().add(room.getRectangle());
